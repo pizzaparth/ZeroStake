@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --bg:        #0e0c16;
+  --surface:   #16131f;
+  --surface-2: #201c30;
+  --border:    #2b2542;
+  --accent:    #8b5cf6;
+  --accent-2:  #a78bfa;
+  --live:      #22d3ee;
+  --text:      #ece9f8;
+  --muted:     #8d87ab;
+  --win:       #34d399;
+  --lose:      #fb7185;
+}
+
+@theme inline {
+  --color-bg:        var(--bg);
+  --color-surface:   var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border:    var(--border);
+  --color-accent:    var(--accent);
+  --color-accent-2:  var(--accent-2);
+  --color-live:      var(--live);
+  --color-text:      var(--text);
+  --color-muted:     var(--muted);
+  --color-win:       var(--win);
+  --color-lose:      var(--lose);
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-manrope), ui-sans-serif, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+}
+
+html { color-scheme: dark; }
+
+body {
+  /* Faint violet aurora at the top of the page for depth — content sits on --bg */
+  background:
+    radial-gradient(1100px 520px at 75% -12%, rgba(139, 92, 246, 0.09), transparent 60%),
+    radial-gradient(800px 400px at 10% -8%, rgba(34, 211, 238, 0.05), transparent 55%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-sans, sans-serif);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
