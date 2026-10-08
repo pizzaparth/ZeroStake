@@ -11,8 +11,8 @@ export default function TabsLayout() {
         headerShown: false,
         sceneStyle: { backgroundColor: C.page },
         animation: "none",
-        // Blurred tabs stop rendering, so playing a game never re-renders History/Stats in the background.
-        freezeOnBlur: true,
+        // Disabling freezeOnBlur to avoid jitter when switching tabs.
+        freezeOnBlur: false,
         lazy: true,
       }}
     >

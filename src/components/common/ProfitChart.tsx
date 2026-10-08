@@ -31,7 +31,7 @@ export function ProfitChart({ series, height = 150 }: { series: number[]; height
   const last = series.at(-1) ?? 0;
 
   return (
-    <View className="gap-3 rounded-[20px] bg-surface p-4">
+    <View className="gap-3 rounded-3xl bg-surface p-4">
       <View className="flex-row items-baseline justify-between">
         <T variant="heading">Profit over your last {series.length} bets</T>
         <T variant="num" className={`font-body-bold ${last >= 0 ? "text-pos" : "text-neg"}`}>

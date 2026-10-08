@@ -18,7 +18,7 @@ export interface ScreenProps {
 export function Screen({ subtitle, title, right, children, scroll = true }: ScreenProps) {
   const insets = useSafeAreaInsets();
   const header = (
-    <View className="flex-row items-center justify-between gap-3 bg-page px-5 pb-3" style={{ paddingTop: insets.top + 8, zIndex: 20, elevation: 20 }}>
+    <View className="flex-row items-center justify-between gap-3 px-5 pb-3 pt-2">
       <View className="flex-1">
         <T variant="title" accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
           {title}
@@ -35,7 +35,7 @@ export function Screen({ subtitle, title, right, children, scroll = true }: Scre
 
   if (!scroll) {
     return (
-      <View className="flex-1 bg-page">
+      <View className="flex-1 bg-page" style={{ paddingTop: insets.top }}>
         {header}
         <View className="flex-1">{children}</View>
       </View>
@@ -43,9 +43,15 @@ export function Screen({ subtitle, title, right, children, scroll = true }: Scre
   }
   return (
     <View className="flex-1 bg-page">
-      {header}
-      <ScrollView className="flex-1" contentContainerClassName="px-5 pt-2 pb-10 gap-6" keyboardShouldPersistTaps="handled">
-        {children}
+      <ScrollView 
+        className="flex-1" 
+        contentContainerStyle={{ paddingTop: insets.top, paddingBottom: 110 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        {header}
+        <View className="px-5 pb-2 pt-2 gap-6">
+          {children}
+        </View>
       </ScrollView>
     </View>
   );
@@ -64,7 +70,7 @@ export function Section({ title, right, children }: { title: string; right?: Rea
   );
 }
 
-/** Grouped surface (radius 20, padding 16 — text stays clear of the curve). */
+/** Grouped surface (radius 24, padding 16 — text stays clear of the curve). */
 export function Panel({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <View className={`rounded-[20px] bg-surface px-4 py-3 ${className}`}>{children}</View>;
+  return <View className={`rounded-3xl bg-surface px-4 py-3 ${className}`}>{children}</View>;
 }

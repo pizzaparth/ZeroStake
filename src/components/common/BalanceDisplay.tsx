@@ -35,7 +35,10 @@ export function BalanceDisplay() {
 
   return (
     <View style={{ zIndex: 50, elevation: 50 }} accessible accessibilityLabel={`Balance ${formatCoins(balance)} ${CURRENCY_NAME}`}>
-      <View className="h-10 flex-row items-center gap-2 rounded-full bg-surface pl-1.5 pr-3.5">
+      <View 
+        className="h-10 flex-row items-center gap-2 rounded-full bg-surface pl-1.5 pr-3.5"
+        style={{ shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 }}
+      >
         <ChipCoin size={26} />
         <T variant="num" numberOfLines={1} className="text-[15px]">
           {text}
@@ -47,7 +50,14 @@ export function BalanceDisplay() {
           entering={animations ? SlideInUp.duration(160) : undefined}
           exiting={animations ? FadeOutUp.duration(180) : undefined}
           className="absolute right-0 top-12 rounded-full px-3 py-1.5"
-          style={{ backgroundColor: chip.fill }}
+          style={{ 
+            backgroundColor: chip.fill,
+            shadowColor: "#000", 
+            shadowOffset: { width: 0, height: 2 }, 
+            shadowOpacity: 0.15, 
+            shadowRadius: 4, 
+            elevation: 4 
+          }}
           accessibilityLiveRegion="polite"
           accessibilityLabel={`${delta.amount > 0 ? "Gained" : "Spent"} ${formatCoins(Math.abs(delta.amount))} coins`}
         >

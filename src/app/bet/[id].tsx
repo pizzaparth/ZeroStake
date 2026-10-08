@@ -53,7 +53,7 @@ export default function BetDetail() {
         <PressableScale
           accessibilityRole="button"
           accessibilityLabel="Close"
-          onPress={() => router.back()}
+          onPress={() => requestAnimationFrame(() => router.back())}
           className="h-11 w-11 items-center justify-center rounded-full bg-surface"
         >
           <X size={20} color={C.ink} />
@@ -61,7 +61,7 @@ export default function BetDetail() {
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: insets.bottom + 32, gap: 16 }}>
         <View className="flex-row gap-3">
-          <View className="flex-1 rounded-[20px] p-4" style={{ backgroundColor: chip.fill }}>
+          <View className="flex-1 rounded-3xl p-4" style={{ backgroundColor: chip.fill }}>
             <T variant="label" style={{ color: chip.text }}>
               {profit > 0 ? "Won" : profit === 0 ? "Stake back" : "Lost"}
             </T>
@@ -69,12 +69,12 @@ export default function BetDetail() {
               {formatSigned(profit)}
             </T>
           </View>
-          <View className="flex-1 rounded-[20px] bg-surface p-4">
+          <View className="flex-1 rounded-3xl bg-surface p-4">
             <T variant="label">Multiplier</T>
             <T variant="numLg">{formatMultiplier(bet.totalBet > 0 ? bet.payout / bet.totalBet : bet.multiplier)}</T>
           </View>
         </View>
-        <View className="rounded-[20px] bg-surface px-4 py-1">
+        <View className="rounded-3xl bg-surface px-4 py-1">
           <KeyValue label="What happened" value={meta.describe(bet.outcome)} mono={false} />
           <KeyValue label="Bet" value={`${formatCoins(bet.totalBet)}${bet.totalBet !== bet.baseBet ? ` (base ${formatCoins(bet.baseBet)})` : ""}`} />
           <KeyValue label="Paid out" value={formatCoins(bet.payout)} />
@@ -93,13 +93,13 @@ export default function BetDetail() {
             serverSeedHash={bet.serverSeedHash}
           />
         ) : (
-          <View className="gap-3 rounded-[20px] border-2 border-dashed border-line p-5">
+          <View className="gap-3 rounded-3xl border-2 border-dashed border-line p-5">
             <T variant="heading">Can’t check this one yet</T>
             <T variant="body" className="text-soft">
               This bet used the seeds you’re still playing with. The server seed stays hidden so results can’t be predicted. Rotate seeds on the
               Fairness tab, then come back here to check it.
             </T>
-            <Btn label="Open Fairness" variant="outline" onPress={() => router.navigate("/fairness")} />
+            <Btn label="Open Fairness" variant="outline" onPress={() => requestAnimationFrame(() => router.navigate("/fairness"))} />
           </View>
         )}
       </ScrollView>

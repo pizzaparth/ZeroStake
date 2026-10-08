@@ -25,9 +25,9 @@ export interface BtnProps {
 }
 
 const SIZE = {
-  sm: { h: "h-10", px: "px-4", text: "text-[14px]", radius: "rounded-xl" },
-  md: { h: "h-12", px: "px-5", text: "text-[15px]", radius: "rounded-[14px]" },
-  lg: { h: "h-14", px: "px-6", text: "text-[16px]", radius: "rounded-2xl" },
+  sm: { h: "h-10", px: "px-4", text: "text-[14px]", radius: "rounded-full" },
+  md: { h: "h-12", px: "px-5", text: "text-[15px]", radius: "rounded-full" },
+  lg: { h: "h-14", px: "px-6", text: "text-[16px]", radius: "rounded-full" },
 } as const;
 
 /** Flat button with a scale-and-dim press state. Disabled = 40% opacity, no press. */

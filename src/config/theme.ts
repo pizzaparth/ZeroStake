@@ -6,17 +6,17 @@
  */
 export const C = {
   page: "#ffffff",
-  surface: "#f5f3ef",
-  surface2: "#ebe8e2",
-  line: "#e4e0d8",
-  ink: "#141312",
-  soft: "#6b655e",
-  red: "#f0384c",
-  blue: "#2f6bf0",
-  gold: "#ffc21a",
-  mint: "#16c98d",
-  pos: "#0a7d55",
-  neg: "#cf2438",
+  surface: "#f8f8fb",
+  surface2: "#f0f0f5",
+  line: "#e5e5ea",
+  ink: "#111113",
+  soft: "#8e8e93",
+  red: "#ff3b30",
+  blue: "#007aff",
+  gold: "#ffcc00",
+  mint: "#34c759",
+  pos: "#34c759",
+  neg: "#ff3b30",
 } as const;
 
 export const B = {

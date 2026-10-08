@@ -21,7 +21,7 @@ export function VerificationPanel({ bet, seeds, serverSeedHash }: { bet: Recorde
 
   return (
     <View className="gap-4">
-      <Animated.View entering={ZoomIn.duration(180)} className="items-center gap-1 rounded-[20px] p-5" style={{ backgroundColor: chip.fill }}>
+      <Animated.View entering={ZoomIn.duration(180)} className="items-center gap-1 rounded-3xl p-5" style={{ backgroundColor: chip.fill }}>
         <T variant="title" style={{ color: chip.text }} accessibilityLiveRegion="polite">
           {report.verified ? "VERIFIED ✓" : "VERIFICATION FAILED"}
         </T>
@@ -32,13 +32,13 @@ export function VerificationPanel({ bet, seeds, serverSeedHash }: { bet: Recorde
         </T>
       </Animated.View>
 
-      <View className="rounded-[20px] bg-surface px-4 py-1">
+      <View className="rounded-3xl bg-surface px-4 py-1">
         <Check label="Server seed matches the hash you were shown" ok={report.commitmentValid} />
         <Check label="Result matches" ok={report.outcomeMatches} />
         <Check label="Multiplier matches" ok={report.multiplierMatches} last />
       </View>
 
-      <View className="gap-2 rounded-[20px] bg-surface p-4">
+      <View className="gap-2 rounded-3xl bg-surface p-4">
         <T variant="heading">Random numbers used</T>
         {trace.map((row) => (
           <View key={row.cursor} className="gap-1 rounded-2xl bg-well p-3">
@@ -53,7 +53,7 @@ export function VerificationPanel({ bet, seeds, serverSeedHash }: { bet: Recorde
         ))}
       </View>
 
-      <View className="rounded-[20px] bg-surface px-4 py-1">
+      <View className="rounded-3xl bg-surface px-4 py-1">
         <KeyValue label="Expected result" value={report.expected ? canonical(report.expected.outcome) : "—"} />
         <KeyValue label="Recorded result" value={canonical(bet.outcome)} />
         <KeyValue label="Expected multiplier" value={report.expected ? String(report.expected.multiplier) : "—"} />

@@ -51,7 +51,7 @@ export function NumberField({
         <T variant="label">{label}</T>
         {hint ? <T variant="small">{hint}</T> : null}
       </View>
-      <View className="h-12 flex-row items-center rounded-[14px] bg-surface px-3.5" style={{ opacity: disabled ? 0.4 : 1 }}>
+      <View className="h-12 flex-row items-center rounded-full bg-surface px-3.5" style={{ opacity: disabled ? 0.4 : 1 }}>
         <TextInput
           value={text}
           editable={!disabled}
@@ -83,7 +83,7 @@ export function ValueBox({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-1 gap-2">
       <T variant="label">{label}</T>
-      <View className="h-12 justify-center rounded-[14px] bg-surface px-3.5">
+      <View className="h-12 justify-center rounded-full bg-surface px-3.5">
         <T variant="num" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} className="text-[17px]">
           {value}
         </T>

@@ -156,7 +156,7 @@ export default function FlipScreen() {
         <View className="w-14">
           <Btn label="−" size="sm" variant="outline" disabled={busy || prefs.streak <= 1} onPress={() => setPrefs({ streak: prefs.streak - 1 })} />
         </View>
-        <View className="flex-1 items-center justify-center rounded-[14px] bg-surface px-2 py-2">
+        <View className="flex-1 items-center justify-center rounded-full bg-surface px-2 py-2">
           <T variant="label">
             {prefs.streak} in a row, {(0.5 ** prefs.streak * 100).toFixed(2)}% chance
           </T>

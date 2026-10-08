@@ -17,14 +17,16 @@ const ORDER = ["mines", "plinko", "dice", "limbo", "crash", "dragonTower", "keno
 
 const open = (game: GameMeta) => {
   haptic("tap");
-  router.push({ pathname: "/game/[id]", params: { id: game.id } });
+  requestAnimationFrame(() => {
+    router.push({ pathname: "/game/[id]", params: { id: game.id } });
+  });
 };
 
 /** Game card: coloured icon badge, RTP tag, name and one-line description. */
 function GameCard({ game, wide }: { game: GameMeta; wide?: boolean }) {
   const chip = CHIPS[GAME_CHIP[game.id]];
   const badge = (
-    <View className="h-11 w-11 items-center justify-center rounded-[14px]" style={{ backgroundColor: chip.fill }}>
+    <View className="h-11 w-11 items-center justify-center rounded-full" style={{ backgroundColor: chip.fill }}>
       <GameIcon id={game.id} size={22} color={chip.text} />
     </View>
   );
@@ -52,7 +54,7 @@ function GameCard({ game, wide }: { game: GameMeta; wide?: boolean }) {
       accessibilityLabel={`Play ${game.name}`}
       accessibilityHint={`${game.tagline}. Return to player ${formatRtp(game.info.rtp)}`}
       onPress={() => open(game)}
-      className={`rounded-[20px] bg-surface p-4 ${wide ? "w-full flex-row items-center gap-3" : "h-[148px] w-[48.5%] justify-between"}`}
+      className={`rounded-3xl bg-surface p-4 ${wide ? "w-full flex-row items-center gap-3" : "h-[148px] w-[48.5%] justify-between"}`}
     >
       {wide ? (
         <>
@@ -80,9 +82,11 @@ function Shortcut({ label, detail, icon: Icon, href }: { label: string; detail: 
       accessibilityLabel={label}
       onPress={() => {
         haptic("tap");
-        router.navigate(href);
+        requestAnimationFrame(() => {
+          router.navigate(href);
+        });
       }}
-      className="flex-1 flex-row items-center gap-3 rounded-[18px] border border-line bg-page px-3.5 py-3"
+      className="flex-1 flex-row items-center gap-3 rounded-3xl border border-line bg-page px-3.5 py-3"
     >
       <Icon size={20} color={C.ink} />
       <View className="flex-1">

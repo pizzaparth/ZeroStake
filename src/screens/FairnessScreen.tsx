@@ -79,7 +79,7 @@ function RotateDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v:
     <Dialog isOpen={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay />
-        <Dialog.Content className="rounded-[24px] bg-page p-5">
+        <Dialog.Content className="rounded-3xl bg-page p-5">
           <View className="gap-4">
             <Dialog.Title className="font-display text-2xl text-ink">Rotate your seeds?</Dialog.Title>
             <Dialog.Description className="font-body text-base leading-6 text-soft">
@@ -227,7 +227,7 @@ export default function FairnessScreen() {
           <T variant="small">Nothing revealed yet. Rotate seeds to reveal the current server seed.</T>
         ) : (
           revealed.map((p) => (
-            <Animated.View key={p.id} entering={FadeIn.duration(160)} className="rounded-[20px] bg-surface px-4 py-2">
+            <Animated.View key={p.id} entering={FadeIn.duration(160)} className="rounded-3xl bg-surface px-4 py-2">
               <View className="flex-row justify-between pt-2">
                 <T variant="label" className="text-ink">
                   Seed pair {p.id}

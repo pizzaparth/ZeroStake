@@ -25,7 +25,7 @@ const LIST_PADDING = { paddingHorizontal: 20, paddingBottom: 120 };
 function Filter({ value, onChange }: { value: GameId | null; onChange: (g: GameId | null) => void }) {
   const options: { id: GameId | null; label: string }[] = [{ id: null, label: "All games" }, ...GAMES.map((g) => ({ id: g.id, label: g.name }))];
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-2 px-5 pb-3">
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }} contentContainerClassName="gap-2 px-5 pb-3">
       {options.map((o) => {
         const selected = o.id === value;
         return (
@@ -61,8 +61,12 @@ export function BetListRow({ bet }: { bet: BetRow }) {
     <PressableScale
       accessibilityRole="button"
       accessibilityLabel={`${meta.name}, ${RESULT_TEXT[result]}, ${formatSigned(profit)} coins`}
-      onPress={() => router.push({ pathname: "/bet/[id]", params: { id: String(bet.id) } })}
-      className="mb-2 flex-row items-center gap-3 rounded-[18px] bg-surface px-3.5 py-3"
+      onPress={() => {
+        requestAnimationFrame(() => {
+          router.push({ pathname: "/bet/[id]", params: { id: String(bet.id) } });
+        });
+      }}
+      className="mb-2 flex-row items-center gap-3 rounded-3xl bg-surface px-3.5 py-3"
     >
       <View className="h-11 w-11 items-center justify-center rounded-full" style={{ backgroundColor: chip.fill }}>
         <GameIcon id={bet.game} size={20} color={chip.text} />
@@ -152,7 +156,7 @@ export default function HistoryScreen() {
       {view === "ledger" ? (
         <Ledger />
       ) : (
-        <>
+        <View className="flex-1">
           <Filter value={game} onChange={setGame} />
           <FlashList
             data={rows}
@@ -175,7 +179,7 @@ export default function HistoryScreen() {
               </View>
             }
           />
-        </>
+        </View>
       )}
     </Screen>
   );

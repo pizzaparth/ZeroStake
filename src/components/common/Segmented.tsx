@@ -30,8 +30,8 @@ export function Segmented<V extends string | number>({ value, options, onChange,
       accessibilityLabel={accessibilityLabel}
       style={{ opacity: disabled ? 0.4 : 1 }}
     >
-      <Tabs.List className="w-full rounded-xl bg-surface-2 p-1">
-        <Tabs.Indicator className="rounded-[10px] bg-page" />
+      <Tabs.List className="w-full rounded-full bg-surface-2 p-1">
+        <Tabs.Indicator className="rounded-full bg-page shadow-sm" />
         {options.map((o) => (
           <Tabs.Trigger key={String(o.value)} value={String(o.value)} isDisabled={disabled} className="h-9 flex-1 items-center justify-center px-1">
             {({ isSelected }) => (

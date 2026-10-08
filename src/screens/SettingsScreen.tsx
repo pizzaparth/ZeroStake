@@ -76,7 +76,7 @@ export function ConfirmDialog({
     <Dialog isOpen={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay />
-        <Dialog.Content className="rounded-[24px] bg-page p-5">
+        <Dialog.Content className="rounded-3xl bg-page p-5">
           <View className="gap-4">
             <Dialog.Title className="font-display text-2xl text-ink">{title}</Dialog.Title>
             <Dialog.Description className="font-body text-base leading-6 text-soft">{body}</Dialog.Description>
@@ -149,7 +149,7 @@ export default function SettingsScreen() {
         <Panel className="py-1">
           <PressableScale
             accessibilityRole="link"
-            onPress={() => router.navigate("/fairness")}
+            onPress={() => requestAnimationFrame(() => router.navigate("/fairness"))}
             className="flex-row items-center gap-3 border-b border-line py-3"
           >
             <View className="flex-1">

@@ -53,7 +53,11 @@ export default function RootLayout() {
       <HeroUINativeProvider
         config={{
           animation: animations ? undefined : "disable-all",
-          toast: { defaultProps: { placement: "top" } },
+          toast: { 
+            defaultProps: { 
+              placement: "top"
+            } 
+          },
           devInfo: { stylingPrinciples: false },
         }}
       >
@@ -66,12 +70,13 @@ export default function RootLayout() {
               screenOptions={{
                 headerShown: false,
                 contentStyle: { backgroundColor: C.page },
-                animation: animations ? "default" : "none",
+                animation: animations ? "fade" : "none",
+                animationDuration: 120,
               }}
             >
               <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="game/[id]" options={{ animation: animations ? "slide_from_right" : "none", gestureEnabled: true }} />
-              <Stack.Screen name="bet/[id]" options={{ presentation: "modal", animation: animations ? "slide_from_bottom" : "none" }} />
+              <Stack.Screen name="game/[id]" options={{ animation: animations ? "fade" : "none", animationDuration: 120, gestureEnabled: true }} />
+              <Stack.Screen name="bet/[id]" options={{ presentation: "modal", animation: animations ? "fade" : "none", animationDuration: 120 }} />
             </Stack>
           )}
         </ThemeProvider>

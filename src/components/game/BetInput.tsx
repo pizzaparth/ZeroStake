@@ -28,7 +28,7 @@ function Shortcut({ label, onPress, disabled }: { label: string; onPress: () => 
         haptic("select");
         onPress();
       }}
-      className="h-12 min-w-12 items-center justify-center rounded-[14px] bg-surface px-3.5"
+      className="h-12 min-w-12 items-center justify-center rounded-full bg-surface px-3.5"
     >
       <T variant="label" className="text-[14px] text-ink">
         {label}
@@ -62,7 +62,7 @@ export function BetInput({ value, onChange, disabled, caption }: BetInputProps) 
       </View>
       <View className="flex-row items-stretch gap-2">
         <View
-          className={`h-12 flex-1 flex-row items-center gap-2.5 rounded-[14px] border bg-surface pl-3.5 pr-3 ${invalid ? "border-neg" : "border-surface"}`}
+          className={`h-12 flex-1 flex-row items-center gap-2.5 rounded-full border bg-surface pl-3.5 pr-3 ${invalid ? "border-neg" : "border-surface"}`}
           style={{ opacity: disabled ? 0.4 : 1 }}
         >
           <ChipCoin size={20} />

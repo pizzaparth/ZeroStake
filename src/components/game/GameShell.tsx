@@ -50,7 +50,7 @@ export function GameShell({ game, board, controls }: GameShellProps) {
   return (
     <View className="flex-1 bg-page" style={{ paddingTop: insets.top }}>
       <View className="flex-row items-center gap-3 bg-page px-4 pb-3 pt-1" style={{ zIndex: 20, elevation: 20 }}>
-        <RoundButton label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}>
+        <RoundButton label="Back" onPress={() => requestAnimationFrame(() => router.canGoBack() ? router.back() : router.replace("/"))}>
           <ChevronLeft size={22} color={C.ink} />
         </RoundButton>
         <T
