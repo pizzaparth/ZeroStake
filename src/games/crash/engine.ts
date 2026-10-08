@@ -16,8 +16,12 @@ import type { RoundGame } from "../types";
 
 export const CRASH_RTP = GAME_RTP.crash;
 export const CRASH_MAX = 1_000_000;
-/** Growth rate of the displayed curve: m(t) = e^(k·t), t in ms (from the original client). */
-export const CRASH_GROWTH = 0.00006;
+/**
+ * Growth rate of the displayed curve: m(t) = e^(k·t), t in ms. Visual only —
+ * the crash point is fixed before the curve starts. 2× is reached in ~4.3 s
+ * (the original 0.00006 took ~11.5 s).
+ */
+export const CRASH_GROWTH = 0.00016;
 
 export function crashPointFromFloat(u: number, rtp = CRASH_RTP): number {
   if (u < 1 - rtp) return 1;

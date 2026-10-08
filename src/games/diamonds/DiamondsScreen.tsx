@@ -26,10 +26,10 @@ import {
 const game = GAME_BY_ID.diamonds;
 const GEM_COLORS: Record<GemType, string> = {
   diamond: "#7fe7ff",
-  ruby: "#ff3d5a",
-  emerald: "#2bff88",
-  sapphire: "#4a6bff",
-  topaz: "#ffc83d",
+  ruby: "#ff4d5e",
+  emerald: "#2ee6a6",
+  sapphire: "#3d7bff",
+  topaz: "#ffc21a",
 };
 
 export default function DiamondsScreen() {
@@ -87,9 +87,9 @@ export default function DiamondsScreen() {
           () => {
             setRevealed((v) => [...v, tile]);
             if (k < DIAMONDS_PICKS) playSound(out.diamonds.includes(tile) ? "reveal" : "tick");
-            if (k === order.length - 1) timers.current.push(setTimeout(done, 200));
+            if (k === order.length - 1) timers.current.push(setTimeout(done, 100));
           },
-          k < DIAMONDS_PICKS ? k * 260 : DIAMONDS_PICKS * 260 + (k - DIAMONDS_PICKS) * 40,
+          k < DIAMONDS_PICKS ? k * 120 : DIAMONDS_PICKS * 120 + (k - DIAMONDS_PICKS) * 20,
         ),
       ),
     );
@@ -113,14 +113,14 @@ export default function DiamondsScreen() {
               className="aspect-square w-[23%]"
             >
               <View
-                className={`flex-1 items-center justify-center rounded-xl border-[3px] ${hit ? "border-game-win" : picked ? "border-game-violet" : "border-transparent"} bg-game-tile`}
+                className={`flex-1 items-center justify-center rounded-xl border-[3px] ${hit ? "border-game-win" : picked ? "border-chip-blue" : "border-transparent"} bg-game-tile`}
               >
                 {isRevealed && gem ? (
-                  <Animated.View entering={animations ? ZoomIn.springify() : undefined} style={{ opacity: picked || gem === "diamond" ? 1 : 0.45 }}>
+                  <Animated.View entering={animations ? ZoomIn.duration(120) : undefined} style={{ opacity: picked || gem === "diamond" ? 1 : 0.45 }}>
                     <Gem size={30} color={GEM_COLORS[gem]} />
                   </Animated.View>
                 ) : (
-                  <T variant="monoSm">{picked ? "PICK" : ""}</T>
+                  <T variant="numSm">{picked ? "PICK" : ""}</T>
                 )}
               </View>
             </Pressable>
@@ -131,21 +131,21 @@ export default function DiamondsScreen() {
         {DIAMONDS_PAYTABLE.map((m, h) => {
           const active = outcome?.hits === h;
           return (
-            <View key={h} className={`flex-1 items-center rounded-md py-1 ${active ? "bg-game-gold" : "bg-game-tile"}`}>
-              <T variant="monoSm" className={active ? "text-black" : "text-white"}>
+            <View key={h} className={`flex-1 items-center rounded-lg py-1 ${active ? "bg-game-gold" : "bg-game-tile"}`}>
+              <T variant="numSm" className={active ? "text-inv" : "text-ink"}>
                 {formatMultiplier(m)}
               </T>
-              <T variant="monoSm" className={`text-[9px] ${active ? "text-black" : "text-white"}`}>
-                {h}♦ · {(probs[h] * 100).toFixed(1)}%
+              <T variant="numSm" className={`text-[11px] ${active ? "text-inv" : "text-ink"}`}>
+                {h}♦ {(probs[h] * 100).toFixed(1)}%
               </T>
             </View>
           );
         })}
       </View>
       {outcome ? (
-        <T variant="label" className="text-center">
-          {outcome.hits} diamond{outcome.hits === 1 ? "" : "s"} ·{" "}
-          {row!.payout > row!.totalBet ? "Win" : row!.payout === row!.totalBet ? "Push" : "Loss"}
+        <T variant="body" className="text-soft text-center">
+          {outcome.hits} diamond{outcome.hits === 1 ? "" : "s"},{" "}
+          {row!.payout > row!.totalBet ? "win" : row!.payout === row!.totalBet ? "stake back" : "no win"}
         </T>
       ) : null}
     </View>

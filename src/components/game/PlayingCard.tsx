@@ -3,6 +3,7 @@ import { View } from "react-native";
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withDelay, withSpring, withTiming } from "react-native-reanimated";
 
 import { isRedSuit, rankLabel, suitSymbol, type Card } from "@/engine/cards/deck";
+import { MOTION } from "@/config/theme";
 import { useAppStore } from "@/store/appStore";
 import { T } from "../common/Typography";
 
@@ -38,15 +39,15 @@ export function PlayingCard({
 
   useEffect(() => {
     if (!animations) {
-      enter.value = 1;
+      enter.set(1);
       return;
     }
-    enter.value = withDelay(delay, withSpring(1, { damping: 16, stiffness: 180 }));
+    enter.set(withDelay(delay, withSpring(1, MOTION.spring)));
   }, [animations, delay, enter]);
 
   useEffect(() => {
     const target = faceDown || !card ? 0 : 1;
-    flip.value = animations ? withDelay(delay + 120, withTiming(target, { duration: 300 })) : target;
+    flip.set(animations ? withDelay(delay + 60, withTiming(target, { duration: 170 })) : target);
   }, [faceDown, card, animations, delay, flip]);
 
   const wrapper = useAnimatedStyle(() => ({
@@ -75,19 +76,19 @@ export function PlayingCard({
       accessible
       accessibilityLabel={card && !faceDown ? `${rankLabel(card.rank)} of ${card.suit}` : "Face-down card"}
     >
-      <Animated.View className="absolute inset-0 items-center justify-center rounded-lg border-2 border-[#3a4b5c] bg-[#1b2a3a]" style={back}>
-        <View className="h-[70%] w-[70%] rounded-md border border-[#49b8ff]/40" />
+      <Animated.View className="absolute inset-0 items-center justify-center rounded-xl bg-chip-red" style={back}>
+        <View className="h-[78%] w-[74%] rounded-lg border-2 border-dashed border-ink" />
       </Animated.View>
       <Animated.View
-        className={`absolute inset-0 justify-between rounded-lg border-[3px] bg-white p-1.5 ${ring}`}
+        className={`absolute inset-0 justify-between rounded-xl border-[3px] bg-ink p-1.5 ${ring}`}
         style={[front, { opacity: dim ? 0.55 : 1 }]}
       >
         {card ? (
           <>
-            <T variant="mono" className={`font-mono-bold ${s.rank} ${red ? "text-[#e0243c]" : "text-black"}`}>
+            <T variant="numLg" className={`${s.rank} ${red ? "text-[#d6203a]" : "text-inv"}`}>
               {rankLabel(card.rank)}
             </T>
-            <T className={`self-center ${s.suit} ${red ? "text-[#e0243c]" : "text-black"}`}>{suitSymbol(card.suit)}</T>
+            <T className={`self-center ${s.suit} ${red ? "text-[#d6203a]" : "text-inv"}`}>{suitSymbol(card.suit)}</T>
             <View />
           </>
         ) : null}

@@ -7,6 +7,7 @@ import { Segmented } from "@/components/common/Segmented";
 import { T } from "@/components/common/Typography";
 import { BetInput } from "@/components/game/BetInput";
 import { GameShell } from "@/components/game/GameShell";
+import { Readout } from "@/components/game/Readout";
 import { ResultBanner } from "@/components/game/ResultBanner";
 import { RevealTile, type TileFace } from "@/components/game/RevealTile";
 import { coinsToCents, formatCoins, formatMultiplier, payoutFor } from "@/engine/wallet/money";
@@ -23,6 +24,8 @@ export default function MinesScreen() {
   const round = useRound<MinesState>("mines");
   // Which settled bet's banner is showing (set after the reveal animation).
   const [shownId, setShownId] = useState<number | null>(null);
+  // The grid is a square that fits the board in both directions (short phones included).
+  const [gridSize, setGridSize] = useState(0);
 
   const state = round.state;
   const finished = round.bet?.status === "settled" ? (round.bet.outcome as unknown as MinesOutcome) : null;
@@ -40,7 +43,7 @@ export default function MinesScreen() {
     const t = setTimeout(() => {
       setShownId(id);
       round.reveal();
-    }, 450);
+    }, 200);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished]);
@@ -68,8 +71,14 @@ export default function MinesScreen() {
   };
 
   const board = (
-    <View className="flex-1 items-center justify-center p-4">
-      <View className="aspect-square w-full max-w-[420px] flex-row flex-wrap content-between justify-between">
+    <View
+      className="flex-1 items-center justify-center p-3"
+      onLayout={(e) => setGridSize(Math.min(e.nativeEvent.layout.width, e.nativeEvent.layout.height) - 24)}
+    >
+      <View
+        className="flex-row flex-wrap content-between justify-between"
+        style={{ width: gridSize, height: gridSize, opacity: gridSize > 0 ? 1 : 0 }}
+      >
         {Array.from({ length: MINES_GRID }, (_, i) => (
           <View key={i} className="w-[18.6%]">
             <RevealTile
@@ -77,8 +86,8 @@ export default function MinesScreen() {
               disabled={!round.active}
               onPress={() => pick(i)}
               label={`Tile ${i + 1}`}
-              good={<Gem size={26} color="#2bff88" />}
-              bad={<Bomb size={26} color="#ff3d5a" />}
+              good={<Gem size={26} color="#2ee6a6" />}
+              bad={<Bomb size={26} color="#ff4d5e" />}
             />
           </View>
         ))}
@@ -92,34 +101,17 @@ export default function MinesScreen() {
   const controls = round.active ? (
     <>
       <View className="flex-row gap-2">
-        <View className="flex-1 border border-white p-2">
-          <T variant="label" className="text-[9px]">
-            Current
-          </T>
-          <T variant="mono" className="font-mono-bold">
-            {formatMultiplier(current)}
-          </T>
-        </View>
-        <View className="flex-1 border border-white p-2">
-          <T variant="label" className="text-[9px]">
-            Next tile
-          </T>
-          <T variant="mono" className="font-mono-bold">
-            {next ? formatMultiplier(next) : "—"}
-          </T>
-        </View>
-        <View className="flex-1 border border-white p-2">
-          <T variant="label" className="text-[9px]">
-            Safe chance
-          </T>
-          <T variant="mono" className="font-mono-bold">
-            {next ? `${((minesProbability(mineCount, k + 1) / minesProbability(mineCount, k)) * 100).toFixed(1)}%` : "—"}
-          </T>
-        </View>
+        <Readout label="Now" value={formatMultiplier(current)} highlight />
+        <Readout label="Next tile" value={next ? formatMultiplier(next) : "—"} />
+        <Readout
+          label="Safe chance"
+          value={next ? `${((minesProbability(mineCount, k + 1) / minesProbability(mineCount, k)) * 100).toFixed(1)}%` : "—"}
+        />
       </View>
       <Btn
         label={k === 0 ? "Pick a tile" : `Cash out ${formatCoins(payoutFor(round.bet!.baseBet, current))}`}
         size="lg"
+        tone="mint"
         onPress={cashout}
         disabled={k === 0}
         silent
@@ -131,8 +123,8 @@ export default function MinesScreen() {
       <View className="gap-2">
         <View className="flex-row justify-between">
           <T variant="label">Mines</T>
-          <T variant="monoSm">
-            {prefs.mineCount} mines · first tile {formatMultiplier(minesMultiplier(prefs.mineCount, 1))}
+          <T variant="numSm">
+            {prefs.mineCount} mines, first tile pays {formatMultiplier(minesMultiplier(prefs.mineCount, 1))}
           </T>
         </View>
         <Segmented
@@ -150,7 +142,7 @@ export default function MinesScreen() {
           </View>
         </View>
       </View>
-      <Btn label="Bet" size="lg" onPress={start} silent />
+      <Btn label="Place bet" size="lg" onPress={start} silent />
     </>
   );
 

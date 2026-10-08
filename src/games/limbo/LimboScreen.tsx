@@ -7,7 +7,7 @@ import { Btn } from "@/components/common/Btn";
 import { T } from "@/components/common/Typography";
 import { BetInput } from "@/components/game/BetInput";
 import { GameShell } from "@/components/game/GameShell";
-import { NumberField } from "@/components/game/NumberField";
+import { NumberField, ValueBox } from "@/components/game/NumberField";
 import type { BetRow } from "@/engine/persistence/storage";
 import { coinsToCents, formatCoins, formatMultiplier, payoutFor } from "@/engine/wallet/money";
 import { GAME_BY_ID } from "@/games/registry";
@@ -40,8 +40,8 @@ export default function LimboScreen() {
   };
 
   // Count-up time grows gently with the result so huge results feel bigger.
-  const duration = round ? Math.min(1400, 350 + Math.log10(round.outcome.result) * 400) : 0;
-  const color = !round?.done ? "text-white" : round.outcome.win ? "text-game-win" : "text-game-loss";
+  const duration = round ? Math.min(700, 200 + Math.log10(round.outcome.result) * 180) : 0;
+  const color = !round?.done ? "text-ink" : round.outcome.win ? "text-game-win" : "text-game-loss";
 
   const board = (
     <View className="flex-1 items-center justify-center gap-3 px-4">
@@ -53,22 +53,24 @@ export default function LimboScreen() {
           duration={animations ? duration : 0}
           suffix="×"
           onDone={() => finish(round.row)}
-          className={`font-mono-bold text-7xl ${color}`}
+          className={`font-display text-8xl ${color}`}
           accessibilityLabel={`Result ${formatMultiplier(round.outcome.result)}`}
         />
       ) : (
-        <T variant="monoXl" className="text-7xl">
+        <T variant="numXl" className="text-8xl leading-[96px] text-game-tile-raised">
           1.00×
         </T>
       )}
       {round?.done ? (
-        <Animated.View entering={FadeIn}>
-          <T variant="label">
-            {round.outcome.win ? "Win" : "Loss"} · target {formatMultiplier(round.outcome.target)}
+        <Animated.View entering={FadeIn.duration(120)}>
+          <T variant="body" className="text-soft">
+            {round.outcome.win ? "Win" : "No win"}, target was {formatMultiplier(round.outcome.target)}
           </T>
         </Animated.View>
       ) : (
-        <T variant="label">Target {formatMultiplier(prefs.target)}</T>
+        <T variant="body" className="text-soft">
+          Beat {formatMultiplier(prefs.target)} to win
+        </T>
       )}
     </View>
   );
@@ -79,7 +81,7 @@ export default function LimboScreen() {
         value={prefs.bet}
         onChange={(b) => setPrefs({ bet: b })}
         disabled={busy}
-        caption={`Profit on win: ${formatCoins(payoutFor(prefs.bet, prefs.target) - prefs.bet)}`}
+        caption={`Win pays ${formatCoins(payoutFor(prefs.bet, prefs.target))}`}
       />
       <View className="flex-row gap-3">
         <NumberField
@@ -91,14 +93,9 @@ export default function LimboScreen() {
           suffix="×"
           disabled={busy}
         />
-        <View className="flex-1 gap-1.5">
-          <T variant="label">Win chance</T>
-          <View className="h-11 justify-center border border-white px-3">
-            <T variant="mono">{(limboWinChance(prefs.target) * 100).toFixed(4)}%</T>
-          </View>
-        </View>
+        <ValueBox label="Win chance" value={`${(limboWinChance(prefs.target) * 100).toFixed(4)}%`} />
       </View>
-      <Btn label={busy ? "…" : "Bet"} size="lg" onPress={bet} disabled={busy || !isValidLimboTarget(prefs.target)} silent />
+      <Btn label={busy ? "Rolling" : "Place bet"} size="lg" onPress={bet} disabled={busy || !isValidLimboTarget(prefs.target)} silent />
     </>
   );
 

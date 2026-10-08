@@ -33,7 +33,24 @@ export const GAME_ICONS: Record<GameId, LucideIcon> = {
   diamonds: Gem,
 };
 
-export function GameIcon({ id, size = 22, color = "#ffffff" }: { id: GameId; size?: number; color?: string }) {
+export function GameIcon({ id, size = 22, color = "#fff6e8" }: { id: GameId; size?: number; color?: string }) {
   const Icon = GAME_ICONS[id];
   return <Icon size={size} color={color} strokeWidth={1.75} />;
 }
+
+/** Each game's chip colour on the lobby and in its header. */
+export const GAME_CHIP: Record<GameId, import("@/config/theme").ChipColor> = {
+  mines: "red",
+  plinko: "blue",
+  dice: "gold",
+  limbo: "mint",
+  crash: "blue",
+  dragonTower: "red",
+  keno: "mint",
+  wheel: "gold",
+  hilo: "red",
+  blackjack: "blue",
+  videoPoker: "gold",
+  diamonds: "mint",
+  flip: "red",
+};

@@ -15,10 +15,7 @@ export interface SegmentedProps<V extends string | number> {
   accessibilityLabel?: string;
 }
 
-/**
- * Segmented control built on HeroUI Tabs: the animated indicator is a solid
- * white block, the selected label inverts to black.
- */
+/** iOS-style segmented control on HeroUI Tabs: soft track, raised selected segment. */
 export function Segmented<V extends string | number>({ value, options, onChange, disabled, accessibilityLabel }: SegmentedProps<V>) {
   return (
     <Tabs
@@ -31,13 +28,14 @@ export function Segmented<V extends string | number>({ value, options, onChange,
         }
       }}
       accessibilityLabel={accessibilityLabel}
+      style={{ opacity: disabled ? 0.4 : 1 }}
     >
-      <Tabs.List className="w-full border border-white bg-black p-0.5">
-        <Tabs.Indicator className="bg-white" />
+      <Tabs.List className="w-full rounded-xl bg-surface-2 p-1">
+        <Tabs.Indicator className="rounded-[10px] bg-page" />
         {options.map((o) => (
-          <Tabs.Trigger key={String(o.value)} value={String(o.value)} isDisabled={disabled} className="flex-1 py-2">
+          <Tabs.Trigger key={String(o.value)} value={String(o.value)} isDisabled={disabled} className="h-9 flex-1 items-center justify-center px-1">
             {({ isSelected }) => (
-              <Tabs.Label className={`text-xs font-bold uppercase tracking-[1.5px] ${isSelected ? "text-black" : "text-white"}`}>
+              <Tabs.Label numberOfLines={1} className={`font-body-bold text-[13px] capitalize ${isSelected ? "text-ink" : "text-soft"}`}>
                 {o.label}
               </Tabs.Label>
             )}

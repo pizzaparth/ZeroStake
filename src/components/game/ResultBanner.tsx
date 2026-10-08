@@ -1,6 +1,7 @@
 import { View } from "react-native";
-import Animated, { ZoomIn, ZoomOut } from "react-native-reanimated";
+import Animated, { FadeOut, ZoomIn } from "react-native-reanimated";
 
+import { CHIPS } from "@/config/theme";
 import { formatMultiplier, formatSigned, type Cents } from "@/engine/wallet/money";
 import { T } from "../common/Typography";
 
@@ -12,31 +13,32 @@ export interface ResultBannerProps {
 }
 
 /**
- * Result stamp over a game board. Colour is a bonus on the board; the words
- * WIN / PUSH / LOSS and the signed profit carry the meaning on their own.
+ * Result chip stamped over a board. Mint for a win, red for a loss, gold for
+ * a push — and the words always say which, so colour is never the only cue.
  */
 export function ResultBanner({ multiplier, profit, visible }: ResultBannerProps) {
   if (!visible) return null;
-  const kind = profit > 0 ? "WIN" : profit === 0 ? "PUSH" : "LOSS";
-  const tone = kind === "WIN" ? "border-game-win" : kind === "LOSS" ? "border-game-loss" : "border-white";
+  const kind = profit > 0 ? "You won" : profit === 0 ? "Stake back" : "No win";
+  const chip = CHIPS[profit > 0 ? "mint" : profit === 0 ? "gold" : "red"];
   return (
     <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
       <Animated.View
-        entering={ZoomIn.springify().damping(14)}
-        exiting={ZoomOut.duration(150)}
+        entering={ZoomIn.duration(180)}
+        exiting={FadeOut.duration(100)}
         accessibilityLiveRegion="polite"
         accessibilityLabel={`${kind}. ${formatMultiplier(multiplier)}. ${formatSigned(profit)} coins`}
-        className={`items-center border-4 bg-black px-6 py-3 ${tone}`}
       >
-        <T variant="label" className="text-xs tracking-[4px]">
-          {kind}
-        </T>
-        <T variant="monoXl" className="text-4xl">
-          {formatMultiplier(multiplier)}
-        </T>
-        <T variant="mono" className="font-mono-bold">
-          {formatSigned(profit)}
-        </T>
+        <View className="min-w-[180px] items-center rounded-3xl px-8 py-5" style={{ backgroundColor: chip.fill }}>
+          <T variant="label" style={{ color: chip.text }}>
+            {kind}
+          </T>
+          <T variant="numXl" className="text-[44px] leading-[50px]" numberOfLines={1} adjustsFontSizeToFit style={{ color: chip.text }}>
+            {formatMultiplier(multiplier)}
+          </T>
+          <T variant="num" className="font-body-bold" style={{ color: chip.text }}>
+            {formatSigned(profit)}
+          </T>
+        </View>
       </Animated.View>
     </View>
   );

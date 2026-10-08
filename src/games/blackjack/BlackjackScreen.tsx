@@ -40,17 +40,17 @@ function Hand({
   return (
     <View className={`items-center gap-2 rounded-xl p-2 ${active ? "border-2 border-game-gold" : "border-2 border-transparent"}`}>
       <View className="flex-row items-center gap-2">
-        <T variant="label" className="text-[10px]">
+        <T variant="label" className="text-[12px]">
           {label}
         </T>
-        <View className="rounded bg-game-tile px-1.5">
-          <T variant="monoSm">{totalLabel(visible)}</T>
+        <View className="rounded-full bg-game-tile px-2">
+          <T variant="numSm">{totalLabel(visible)}</T>
         </View>
         {result ? (
           <View
-            className={`rounded px-1.5 ${result === "win" || result === "blackjack" ? "bg-game-win" : result === "push" ? "bg-white" : "bg-game-loss"}`}
+            className={`rounded px-1.5 ${result === "win" || result === "blackjack" ? "bg-game-win" : result === "push" ? "bg-chip-gold" : "bg-game-loss"}`}
           >
-            <T variant="label" className="text-[9px] text-black">
+            <T variant="label" className="text-[11px] text-inv">
               {result}
             </T>
           </View>
@@ -59,7 +59,7 @@ function Hand({
       <View className="flex-row">
         {cards.map((c, i) => (
           <View key={i} style={{ marginLeft: i === 0 ? 0 : -26 }}>
-            <PlayingCard card={c} faceDown={hideSecond && i === 1} delay={i * 90} />
+            <PlayingCard card={c} faceDown={hideSecond && i === 1} delay={i * 50} />
           </View>
         ))}
       </View>
@@ -84,7 +84,7 @@ export default function BlackjackScreen() {
     const t = setTimeout(() => {
       setShownId(id);
       round.reveal();
-    }, 700);
+    }, 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished]);
@@ -104,7 +104,9 @@ export default function BlackjackScreen() {
         {dealer.length ? (
           <Hand cards={dealer} label="Dealer" hideSecond={!!state} />
         ) : (
-          <T variant="label">Blackjack pays 3:2 · Dealer hits soft 17</T>
+          <T variant="body" className="text-soft">
+            Blackjack pays 3 to 2. Dealer hits soft 17.
+          </T>
         )}
       </View>
       <View className="flex-row justify-center gap-2">
@@ -129,10 +131,10 @@ export default function BlackjackScreen() {
       <>
         <View className="flex-row gap-2">
           <View className="flex-1">
-            <Btn label="Hit" onPress={() => act({ type: "hit" })} silent />
+            <Btn label="Hit" tone="mint" onPress={() => act({ type: "hit" })} silent />
           </View>
           <View className="flex-1">
-            <Btn label="Stand" onPress={() => act({ type: "stand" })} silent />
+            <Btn label="Stand" tone="red" onPress={() => act({ type: "stand" })} silent />
           </View>
         </View>
         <View className="flex-row gap-2">
@@ -143,7 +145,7 @@ export default function BlackjackScreen() {
             <Btn label="Split" variant="outline" onPress={() => act({ type: "split" })} disabled={!canSplit(state) || !affordExtra} silent />
           </View>
         </View>
-        <T variant="monoSm">Double and split add one more stake from your balance.</T>
+        <T variant="numSm">Double and split add one more stake from your balance.</T>
       </>
     ) : (
       <>

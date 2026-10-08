@@ -1,23 +1,34 @@
 import { Dialog, Switch, useToast } from "heroui-native";
 import { router } from "expo-router";
+import { ChevronRight } from "lucide-react-native";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { View } from "react-native";
 
 import { Btn } from "@/components/common/Btn";
+import { ChipCoin } from "@/components/common/ChipCoin";
 import { Segmented } from "@/components/common/Segmented";
+import { PressableScale } from "@/components/common/PressableScale";
 import { T } from "@/components/common/Typography";
-import { Screen, Section } from "@/components/layout/Screen";
+import { Panel, Screen, Section } from "@/components/layout/Screen";
 import { APP_NAME, CURRENCY_NAME, DISCLAIMER, STARTING_BALANCE_OPTIONS } from "@/config/app";
+import { C, type ChipColor } from "@/config/theme";
 import { clearHistory } from "@/engine/persistence/storage";
-import { formatCoins, formatCoinsCompact } from "@/engine/wallet/money";
+import { centsToCoins, formatCoins } from "@/engine/wallet/money";
+
 import { resetBalance } from "@/engine/wallet/transactions";
 import { useAppStore } from "@/store/appStore";
 import type { Settings } from "@/store/settings";
 import { haptic, playSound } from "@/utils/feedback";
 
+/** 1K, 10K, 100K, 1M — for the refill picker. */
+const shortAmount = (cents: number) => {
+  const c = centsToCoins(cents);
+  return c >= 1e6 ? `${c / 1e6}M` : c >= 1e3 ? `${c / 1e3}K` : String(c);
+};
+
 type BoolKey = { [K in keyof Settings]: Settings[K] extends boolean ? K : never }[keyof Settings];
 
-function Toggle({ k, label, description }: { k: BoolKey; label: string; description: string }) {
+function Toggle({ k, label, description, last }: { k: BoolKey; label: string; description: string; last?: boolean }) {
   const value = useAppStore((s) => s.settings[k]);
   const update = useAppStore((s) => s.updateSetting);
   const toggle = (v: boolean) => {
@@ -25,31 +36,32 @@ function Toggle({ k, label, description }: { k: BoolKey; label: string; descript
     haptic("select");
   };
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="switch"
       accessibilityState={{ checked: value }}
       accessibilityLabel={label}
       accessibilityHint={description}
       onPress={() => toggle(!value)}
-      className="flex-row items-center gap-3 border-b border-white py-3"
+      className={`flex-row items-center gap-3 py-3 ${last ? "" : "border-b border-line"}`}
     >
       <View className="flex-1">
-        <T variant="body" className="font-bold">
+        <T variant="body" className="font-body-bold">
           {label}
         </T>
         <T variant="small">{description}</T>
       </View>
-      <Switch isSelected={value} onSelectedChange={toggle} className="border border-white" />
-    </Pressable>
+      <Switch isSelected={value} onSelectedChange={toggle} />
+    </PressableScale>
   );
 }
 
-function ConfirmDialog({
+export function ConfirmDialog({
   open,
   onOpenChange,
   title,
   body,
   confirm,
+  tone = "gold",
   onConfirm,
 }: {
   open: boolean;
@@ -57,16 +69,17 @@ function ConfirmDialog({
   title: string;
   body: string;
   confirm: string;
+  tone?: ChipColor;
   onConfirm: () => void;
 }) {
   return (
     <Dialog isOpen={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay />
-        <Dialog.Content className="border border-white bg-black">
+        <Dialog.Content className="rounded-[24px] bg-page p-5">
           <View className="gap-4">
-            <Dialog.Title className="text-2xl font-black text-white">{title}</Dialog.Title>
-            <Dialog.Description className="text-sm text-white">{body}</Dialog.Description>
+            <Dialog.Title className="font-display text-2xl text-ink">{title}</Dialog.Title>
+            <Dialog.Description className="font-body text-base leading-6 text-soft">{body}</Dialog.Description>
             <View className="flex-row gap-3">
               <View className="flex-1">
                 <Btn label="Cancel" variant="outline" onPress={() => onOpenChange(false)} />
@@ -74,6 +87,7 @@ function ConfirmDialog({
               <View className="flex-1">
                 <Btn
                   label={confirm}
+                  tone={tone}
                   onPress={() => {
                     onConfirm();
                     onOpenChange(false);
@@ -90,6 +104,7 @@ function ConfirmDialog({
 
 export default function SettingsScreen() {
   const settings = useAppStore((s) => s.settings);
+  const balance = useAppStore((s) => s.balance);
   const update = useAppStore((s) => s.updateSetting);
   const refresh = useAppStore((s) => s.refresh);
   const { toast } = useToast();
@@ -97,62 +112,88 @@ export default function SettingsScreen() {
   const [confirmClear, setConfirmClear] = useState(false);
 
   return (
-    <Screen kicker="Local only" title="Settings">
-      <Section title="Balance">
-        <T variant="small">Reset amount</T>
-        <Segmented
-          accessibilityLabel="Reset amount"
-          value={settings.startingBalance}
-          options={STARTING_BALANCE_OPTIONS.map((v) => ({ value: v, label: formatCoinsCompact(v).replace(".00", "") }))}
-          onChange={(v) => update("startingBalance", v)}
+    <Screen title="Settings" subtitle="Saved on this phone only.">
+      <Panel className="gap-4">
+        <View className="flex-row items-center gap-3">
+          <ChipCoin size={44} />
+          <View className="flex-1">
+            <T variant="label">Balance</T>
+            <T variant="numLg">{formatCoins(balance)}</T>
+          </View>
+        </View>
+        <View className="gap-2">
+          <T variant="label">Refill to</T>
+          <Segmented
+            accessibilityLabel="Refill amount"
+            value={settings.startingBalance}
+            options={STARTING_BALANCE_OPTIONS.map((v) => ({ value: v, label: shortAmount(v) }))}
+            onChange={(v) => update("startingBalance", v)}
+          />
+        </View>
+        <Btn
+          label={`Refill to ${formatCoins(settings.startingBalance).replace(".00", "")} ${CURRENCY_NAME.toLowerCase()}`}
+          onPress={() => setConfirmReset(true)}
         />
-        <Btn label={`Refill demo ${CURRENCY_NAME.toLowerCase()}`} onPress={() => setConfirmReset(true)} />
-      </Section>
+      </Panel>
 
-      <Section title="Feedback">
-        <Toggle k="sound" label="Sound effects" description="Clicks, wins and losses. Follows the silent switch." />
-        <Toggle k="haptics" label="Haptics" description="Vibration on taps, wins and losses." />
-      </Section>
-
-      <Section title="Display & accessibility">
-        <Toggle k="animations" label="Animations" description="Turn off to reduce motion; results appear instantly." />
-        <Toggle k="compactNumbers" label="Compact numbers" description="Show 12.3K instead of 12,345.67." />
+      <Section title="Feel">
+        <Panel className="py-1">
+          <Toggle k="sound" label="Sound effects" description="Clicks, wins and losses. Respects the silent switch." />
+          <Toggle k="haptics" label="Vibration" description="A tap on presses, wins and losses." />
+          <Toggle k="animations" label="Animations" description="Turn off to reduce motion. Results show instantly." />
+          <Toggle k="compactNumbers" label="Short numbers" description="Show 12.3K instead of 12,345.67." last />
+        </Panel>
       </Section>
 
       <Section title="Fairness">
-        <Btn label="Client seed & rotation" variant="outline" onPress={() => router.navigate("/fairness")} />
-        <Toggle k="showRngDetails" label="Show RNG details" description="Developer view: nonce, client seed and hash on game screens." />
+        <Panel className="py-1">
+          <PressableScale
+            accessibilityRole="link"
+            onPress={() => router.navigate("/fairness")}
+            className="flex-row items-center gap-3 border-b border-line py-3"
+          >
+            <View className="flex-1">
+              <T variant="body" className="font-body-bold">
+                Client seed and rotation
+              </T>
+              <T variant="small">Change your seed or reveal the server seed.</T>
+            </View>
+            <ChevronRight size={20} color={C.soft} />
+          </PressableScale>
+          <Toggle k="showRngDetails" label="Show seed details in games" description="Nonce, client seed and hash under each board." last />
+        </Panel>
       </Section>
 
       <Section title="Data">
         <Btn label="Clear bet history" variant="outline" onPress={() => setConfirmClear(true)} />
       </Section>
 
-      <Section title="About">
+      <View className="gap-2">
         <T variant="small">{DISCLAIMER}</T>
-        <T variant="monoSm">{APP_NAME} · v1.0.0 · 100% offline · SQLite on device</T>
-      </Section>
+        <T variant="small">{APP_NAME} 1.0. Works fully offline.</T>
+      </View>
 
       <ConfirmDialog
         open={confirmReset}
         onOpenChange={setConfirmReset}
-        title="Reset balance?"
-        body={`Set your balance to ${formatCoins(settings.startingBalance)} ${CURRENCY_NAME}. Coins are fictional; history and seeds are kept.`}
-        confirm="Reset"
+        title="Refill your balance?"
+        body={`Your balance becomes ${formatCoins(settings.startingBalance)} ${CURRENCY_NAME}. History and seeds stay as they are.`}
+        confirm="Refill"
         onConfirm={() => {
           resetBalance(settings.startingBalance);
           refresh();
           playSound("cashout");
           haptic("success");
-          toast.show({ variant: "success", label: "Balance reset" });
+          toast.show({ variant: "success", label: "Balance refilled" });
         }}
       />
       <ConfirmDialog
         open={confirmClear}
         onOpenChange={setConfirmClear}
-        title="Clear history?"
-        body="Deletes settled bets and their ledger entries from this device. Balance, seeds and active rounds are kept. This cannot be undone."
-        confirm="Clear"
+        title="Clear bet history?"
+        body="This deletes finished bets and their ledger entries from this phone. Your balance, seeds and unfinished rounds stay. It can't be undone."
+        confirm="Clear history"
+        tone="red"
         onConfirm={() => {
           clearHistory();
           refresh();

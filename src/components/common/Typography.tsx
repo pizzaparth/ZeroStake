@@ -2,31 +2,43 @@ import { Text, type TextProps } from "react-native";
 import { cn } from "heroui-native/utils";
 
 /**
- * Swiss type scale. Hierarchy comes from size, weight, case and tracking —
- * never from grey text. Numbers use the monospaced face so values don't jitter.
+ * One family (Inter Tight) with a deliberate weight/size ladder.
+ * Numbers use tabular figures so amounts don't jitter as they change.
+ * Colours come from theme tokens, so text adapts inside dark game boards.
  */
 const VARIANTS = {
-  display: "text-5xl font-black tracking-tighter",
-  title: "text-3xl font-black tracking-tight",
-  heading: "text-xl font-bold tracking-tight",
-  body: "text-base",
-  small: "text-sm leading-5",
-  label: "text-[11px] font-bold uppercase tracking-[2px]",
-  mono: "font-mono text-base",
-  monoSm: "font-mono text-xs",
-  monoLg: "font-mono-bold text-3xl tracking-tight",
-  monoXl: "font-mono-bold text-5xl tracking-tighter",
+  display: "font-display text-[40px] leading-[44px] tracking-tight",
+  title: "font-display text-[28px] leading-[34px] tracking-tight",
+  heading: "font-display-semi text-[17px] leading-[22px]",
+  body: "font-body text-[15px] leading-[21px]",
+  small: "font-body text-[13px] leading-[18px]",
+  label: "font-body-bold text-[12px] leading-[16px]",
+  num: "font-num text-[15px] leading-[20px]",
+  numSm: "font-num text-[12px] leading-[16px]",
+  numLg: "font-display text-[26px] leading-[32px] tracking-tight",
+  numXl: "font-display text-[56px] leading-[62px] tracking-tight",
 } as const;
+
+/** Variants that default to the secondary text colour. */
+const SOFT: Partial<Record<keyof typeof VARIANTS, true>> = { small: true, label: true, numSm: true };
 
 export type TypographyVariant = keyof typeof VARIANTS;
 
 export interface TProps extends TextProps {
   variant?: TypographyVariant;
-  /** Black text, for use on white (inverted) blocks. */
+  /** Graphite text for use on bright chip-coloured fills. */
   inverted?: boolean;
   className?: string;
 }
 
-export function T({ variant = "body", inverted, className, ...rest }: TProps) {
-  return <Text {...rest} className={cn(VARIANTS[variant], inverted ? "text-black" : "text-white", className)} />;
+export function T({ variant = "body", inverted, className, style, ...rest }: TProps) {
+  const tone = inverted ? "text-inv" : SOFT[variant] ? "text-soft" : "text-ink";
+  return (
+    <Text
+      maxFontSizeMultiplier={1.4}
+      {...rest}
+      style={[{ fontVariant: ["tabular-nums"] }, style]}
+      className={cn(VARIANTS[variant], tone, className)}
+    />
+  );
 }

@@ -18,6 +18,7 @@ import { coinsToCents, formatCoins, formatMultiplier, payoutFor } from "@/engine
 import { GAME_BY_ID } from "@/games/registry";
 import { useGamePrefs, useRound } from "@/hooks/useBetting";
 import { useLiveQuery } from "@/hooks/useLiveQuery";
+import { B } from "@/config/theme";
 import { useAppStore } from "@/store/appStore";
 import { playSound } from "@/utils/feedback";
 import { CRASH_GROWTH, resolveAbandonedCrash, type CrashOutcome, type CrashState } from "./engine";
@@ -133,7 +134,7 @@ export default function CrashScreen() {
     const { w, h } = size;
     if (!w) return p;
     const t = Math.max(elapsed.value, 1);
-    const tMax = Math.max(t, 8000);
+    const tMax = Math.max(t, 4000);
     const mMax = Math.max(2, mult.value * 1.15);
     p.moveTo(0, h);
     for (let i = 1; i <= 48; i++) {
@@ -158,10 +159,10 @@ export default function CrashScreen() {
 
   const board = (
     <View className="flex-1">
-      <View className="flex-row gap-1 px-3 py-2">
+      <View className="flex-row gap-1.5 px-3 pt-3">
         {recent.map((c, i) => (
-          <View key={i} className={`rounded px-1.5 py-0.5 ${c >= 2 ? "bg-game-win" : "bg-game-tile"}`}>
-            <T variant="monoSm" className={`text-[10px] ${c >= 2 ? "text-black" : "text-white"}`}>
+          <View key={i} className={`rounded-full px-2 py-0.5 ${c >= 2 ? "bg-game-win" : "bg-game-tile"}`}>
+            <T variant="numSm" className={`text-[12px] ${c >= 2 ? "text-inv" : "text-ink"}`}>
               {c.toFixed(2)}
             </T>
           </View>
@@ -170,24 +171,26 @@ export default function CrashScreen() {
       <View className="flex-1 mx-3 mb-3" onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
         {size.w > 0 && (
           <Canvas style={{ width: size.w, height: size.h }}>
-            <Path path={fill} color={crashed ? (won ? "rgba(43,255,136,0.18)" : "rgba(255,61,90,0.2)") : "rgba(255,200,61,0.18)"} />
-            <Path path={path} style="stroke" strokeWidth={4} strokeCap="round" color={crashed ? (won ? "#2bff88" : "#ff3d5a") : "#ffc83d"} />
+            <Path path={fill} color={crashed ? (won ? B.winTint : B.lossTint) : "#3a3020"} />
+            <Path path={path} style="stroke" strokeWidth={4} strokeCap="round" color={crashed ? (won ? B.win : B.loss) : B.gold} />
           </Canvas>
         )}
         <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
           <AnimatedNumber
             value={mult}
             suffix="×"
-            className={`font-mono-bold text-6xl ${crashed ? (won ? "text-game-win" : "text-game-loss") : "text-white"}`}
+            className={`font-display text-7xl ${crashed ? (won ? "text-game-win" : "text-game-loss") : "text-ink"}`}
           />
           {crashed ? (
-            <Animated.View entering={ZoomIn}>
-              <T variant="label" accessibilityLiveRegion="polite">
-                Crashed · {won ? `cashed out ${formatMultiplier(cashedAt!)}` : "loss"}
+            <Animated.View entering={ZoomIn.duration(140)}>
+              <T variant="body" className="text-soft" accessibilityLiveRegion="polite">
+                {won ? `Crashed, you cashed out at ${formatMultiplier(cashedAt!)}` : "Crashed before you cashed out"}
               </T>
             </Animated.View>
           ) : cashedAt !== null ? (
-            <T variant="label">Cashed out {formatMultiplier(cashedAt)}</T>
+            <T variant="body" className="text-soft">
+              Cashed out {formatMultiplier(cashedAt)}
+            </T>
           ) : null}
         </View>
       </View>
@@ -197,7 +200,8 @@ export default function CrashScreen() {
   const flying = phase === "flying";
   const controls = flying ? (
     <Btn
-      label={cashedAt !== null ? `Cashed out ${formatMultiplier(cashedAt)}` : "Cash out"}
+      label={cashedAt !== null ? `Cashed out at ${formatMultiplier(cashedAt)}` : "Cash out"}
+      tone="mint"
       size="lg"
       onPress={cashout}
       disabled={cashedAt !== null}
@@ -218,20 +222,16 @@ export default function CrashScreen() {
           hint={prefs.auto ? `wins ${formatCoins(payoutFor(prefs.bet, prefs.autoCashout))}` : "off"}
         />
         <View className="h-11 justify-center">
-          <Switch
-            isSelected={prefs.auto}
-            onSelectedChange={(auto) => setPrefs({ auto })}
-            accessibilityLabel="Auto cash-out"
-            className="border border-white"
-          />
+          <Switch isSelected={prefs.auto} onSelectedChange={(auto) => setPrefs({ auto })} accessibilityLabel="Auto cash-out" />
         </View>
       </View>
       {finished && crashed ? (
-        <T variant="monoSm">
-          Last round: crashed at {formatMultiplier((finished.outcome as unknown as CrashOutcome).crashPoint)} · {finished.payout > 0 ? "win" : "loss"}
+        <T variant="numSm">
+          Last round crashed at {formatMultiplier((finished.outcome as unknown as CrashOutcome).crashPoint)},{" "}
+          {finished.payout > 0 ? "you won" : "no win"}
         </T>
       ) : null}
-      <Btn label="Bet" size="lg" onPress={start} silent />
+      <Btn label="Place bet" size="lg" onPress={start} silent />
     </>
   );
 

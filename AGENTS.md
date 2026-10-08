@@ -26,5 +26,5 @@ Run typecheck, lint and tests before calling a task done.
 - Money is integer cents (`src/engine/wallet/money.ts`).
 - Wallet changes go through `src/engine/wallet/transactions.ts`, so each step happens in one SQLite transaction.
 - Animations replay pre-computed outcomes. They never decide results.
-- App chrome is pure black/white (no greys). Colour is allowed only inside game boards (`--color-game-*`).
+- Use the theme tokens (`src/global.css`, `src/config/theme.ts`). Light chrome, dark game boards (`ScopedTheme`). No gradients. Use `PressableScale` for anything tappable.
 - Routes live in `src/app/`. Never edit generated `ios/` or `android/` folders.

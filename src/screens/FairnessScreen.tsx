@@ -1,13 +1,16 @@
 import { Dialog, Input, TextField, useToast } from "heroui-native";
 import { useMemo, useState } from "react";
+import { ShieldCheck } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
 import Animated, { FadeIn, LinearTransition } from "react-native-reanimated";
 
 import { Btn } from "@/components/common/Btn";
 import { KeyValue } from "@/components/common/KeyValue";
+import { PressableScale } from "@/components/common/PressableScale";
 import { T } from "@/components/common/Typography";
-import { Screen, Section } from "@/components/layout/Screen";
-import { listRevealedSeedPairs, type SeedPairRow } from "@/engine/persistence/storage";
+import { Panel, Screen, Section } from "@/components/layout/Screen";
+import { C } from "@/config/theme";
+import { listRevealedSeedPairs } from "@/engine/persistence/storage";
 import { hashServerSeed } from "@/engine/rng/provablyFair";
 import { validateClientSeed } from "@/engine/rng/seeds";
 import { traceRng } from "@/engine/rng/verifier";
@@ -20,34 +23,21 @@ import { useAppStore } from "@/store/appStore";
 import { haptic } from "@/utils/feedback";
 import { formatTime } from "@/utils/format";
 
-/** Example parameters per game for the manual verifier. */
-const EXAMPLE_PARAMS: Record<GameId, Json> = {
-  dice: { target: 50, direction: "under" },
-  limbo: { target: 2 },
-  mines: { mineCount: 3 },
-  dragonTower: { difficulty: "medium" },
-  wheel: { segments: 10, risk: "medium" },
-  flip: { side: "heads", streak: 1 },
-  keno: { picks: [1, 2, 3, 4, 5] },
-  plinko: { rows: 16, risk: "medium" },
-  hilo: {},
-  crash: { autoCashout: 2 },
-  blackjack: {},
-  videoPoker: {},
-  diamonds: { picks: [0, 1, 2, 3] },
-};
-const EXAMPLE_ACTIONS: Partial<Record<GameId, Json[]>> = {
-  mines: [{ type: "reveal", tile: 0 }, { type: "cashout" }],
-  dragonTower: [{ type: "pick", col: 0 }, { type: "cashout" }],
-  hilo: [{ type: "guess", guess: "higher" }, { type: "cashout" }],
-  crash: [{ type: "cashout", at: 2 }],
-  blackjack: [{ type: "stand" }],
-  videoPoker: [{ type: "draw", holds: [true, true, false, false, false] }],
-};
-
-function Field({ label, value, onChangeText, multiline }: { label: string; value: string; onChangeText: (t: string) => void; multiline?: boolean }) {
+function Field({
+  label,
+  value,
+  onChangeText,
+  multiline,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChangeText: (t: string) => void;
+  multiline?: boolean;
+  placeholder?: string;
+}) {
   return (
-    <View className="gap-1.5">
+    <View className="gap-2">
       <T variant="label">{label}</T>
       <TextField>
         <Input
@@ -56,8 +46,9 @@ function Field({ label, value, onChangeText, multiline }: { label: string; value
           autoCapitalize="none"
           autoCorrect={false}
           multiline={multiline}
+          placeholder={placeholder}
           accessibilityLabel={label}
-          className="min-h-11 border border-white bg-black px-3 py-2 font-mono text-sm text-white"
+          className="min-h-12 rounded-xl border-2 border-well bg-well px-3 py-2.5 font-num text-sm text-ink"
         />
       </TextField>
     </View>
@@ -88,21 +79,25 @@ function RotateDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v:
     <Dialog isOpen={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay />
-        <Dialog.Content className="border border-white bg-black">
+        <Dialog.Content className="rounded-[24px] bg-page p-5">
           <View className="gap-4">
-            <Dialog.Title className="text-2xl font-black text-white">Rotate seeds</Dialog.Title>
-            <Dialog.Description className="text-sm text-white">
-              The current server seed is revealed so every bet made with it can be verified. A new server seed is generated and only its hash is
-              shown. The nonce restarts at 0.
+            <Dialog.Title className="font-display text-2xl text-ink">Rotate your seeds?</Dialog.Title>
+            <Dialog.Description className="font-body text-base leading-6 text-soft">
+              Your current server seed gets revealed, so every bet made with it can be checked. A new server seed is created and only its hash is
+              shown. The nonce starts again at 0.
             </Dialog.Description>
             <Field label="Client seed for the new pair" value={clientSeed} onChangeText={setClientSeed} />
-            {error ? <T variant="monoSm">{error}</T> : null}
+            {error ? (
+              <T variant="small" className="text-neg">
+                {error}
+              </T>
+            ) : null}
             <View className="flex-row gap-3">
               <View className="flex-1">
                 <Btn label="Cancel" variant="outline" onPress={() => onOpenChange(false)} />
               </View>
               <View className="flex-1">
-                <Btn label="Rotate" onPress={rotate} disabled={!!error} />
+                <Btn label="Rotate seeds" onPress={rotate} disabled={!!error} />
               </View>
             </View>
           </View>
@@ -112,19 +107,19 @@ function RotateDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v:
   );
 }
 
-function ManualVerifier({ initial }: { initial?: SeedPairRow }) {
-  const [game, setGame] = useState<GameId>("dice");
-  const [serverSeed, setServerSeed] = useState(initial?.serverSeed ?? "");
-  const [clientSeed, setClientSeed] = useState(initial?.clientSeed ?? "");
-  const [nonce, setNonce] = useState("0");
-  const [params, setParams] = useState(JSON.stringify(EXAMPLE_PARAMS.dice));
-  const [actions, setActions] = useState("[]");
+function ManualVerifier() {
+  const [game, setGame] = useState<GameId | null>(null);
+  const [serverSeed, setServerSeed] = useState("");
+  const [clientSeed, setClientSeed] = useState("");
+  const [nonce, setNonce] = useState("");
+  const [params, setParams] = useState("");
+  const [actions, setActions] = useState("");
 
   const result = useMemo(() => {
-    if (!serverSeed || !clientSeed || !/^\d+$/.test(nonce)) return null;
+    if (!game || !serverSeed.trim() || !clientSeed.trim() || !/^\d+$/.test(nonce) || !params.trim()) return null;
     const seeds = { serverSeed: serverSeed.trim(), clientSeed: clientSeed.trim(), nonce: Number(nonce) };
     try {
-      const settlement = recompute(game, seeds, JSON.parse(params) as Json, JSON.parse(actions) as Json[]);
+      const settlement = recompute(game, seeds, JSON.parse(params) as Json, actions.trim() ? (JSON.parse(actions) as Json[]) : []);
       return { seeds, settlement, error: null };
     } catch (e) {
       return { seeds, settlement: null, error: e instanceof Error ? e.message : String(e) };
@@ -134,46 +129,54 @@ function ManualVerifier({ initial }: { initial?: SeedPairRow }) {
   return (
     <View className="gap-3">
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-2">
-        {GAMES.map((g) => (
-          <View key={g.id}>
-            <Btn
-              label={g.name}
-              size="sm"
-              variant={g.id === game ? "solid" : "outline"}
+        {GAMES.map((g) => {
+          const selected = g.id === game;
+          return (
+            <PressableScale
+              key={g.id}
+              accessibilityRole="button"
+              accessibilityState={{ selected }}
               onPress={() => {
+                haptic("select");
                 setGame(g.id);
-                setParams(JSON.stringify(EXAMPLE_PARAMS[g.id]));
-                setActions(JSON.stringify(EXAMPLE_ACTIONS[g.id] ?? []));
               }}
-            />
-          </View>
-        ))}
+              className={`h-9 justify-center rounded-full px-4 ${selected ? "bg-ink" : "bg-page"}`}
+            >
+              <T variant="label" numberOfLines={1} className={`text-[13px] ${selected ? "text-page" : "text-ink"}`}>
+                {g.name}
+              </T>
+            </PressableScale>
+          );
+        })}
       </ScrollView>
-      <Field label="Server seed (revealed)" value={serverSeed} onChangeText={setServerSeed} />
+      <Field label="Revealed server seed" value={serverSeed} onChangeText={setServerSeed} placeholder="64 hex characters" />
       <Field label="Client seed" value={clientSeed} onChangeText={setClientSeed} />
-      <Field label="Nonce" value={nonce} onChangeText={setNonce} />
-      <Field label="Game parameters (JSON)" value={params} onChangeText={setParams} multiline />
-      {GAMES.find((g) => g.id === game)?.engine.kind === "round" ? (
-        <Field label="Player actions (JSON array)" value={actions} onChangeText={setActions} multiline />
+      <Field label="Nonce" value={nonce} onChangeText={setNonce} placeholder="Whole number" />
+      <Field label="Bet settings (JSON)" value={params} onChangeText={setParams} multiline placeholder="Copy from the bet’s detail page" />
+      {game && GAMES.find((g) => g.id === game)?.engine.kind === "round" ? (
+        <Field label="Your moves (JSON list)" value={actions} onChangeText={setActions} multiline placeholder="Copy from the bet’s detail page" />
       ) : null}
 
       {result ? (
-        <Animated.View entering={FadeIn} layout={LinearTransition} className="gap-1">
-          <KeyValue label="SHA256(server seed)" value={hashServerSeed(result.seeds.serverSeed)} />
+        <Animated.View entering={FadeIn.duration(120)} layout={LinearTransition.duration(140)} className="gap-1">
+          <KeyValue label="SHA-256 of the server seed" value={hashServerSeed(result.seeds.serverSeed)} />
           {traceRng(result.seeds, 2).map((row) => (
-            <KeyValue key={row.cursor} label={`Cursor ${row.cursor} · bytes ${row.bytes}`} value={`${row.hmac}\n→ ${row.float.toFixed(10)}`} />
+            <KeyValue key={row.cursor} label={`Cursor ${row.cursor}, first bytes ${row.bytes}`} value={`${row.hmac}\n→ ${row.float.toFixed(10)}`} />
           ))}
           {result.settlement ? (
             <>
-              <KeyValue label="Derived outcome" value={canonical(result.settlement.outcome)} />
-              <KeyValue label="Multiplier (return ÷ base bet)" value={String(result.settlement.multiplier)} />
+              <KeyValue label="Result" value={canonical(result.settlement.outcome)} />
+              <KeyValue label="Multiplier" value={String(result.settlement.multiplier)} />
             </>
           ) : (
             <KeyValue label="Error" value={result.error ?? ""} mono={false} />
           )}
         </Animated.View>
       ) : (
-        <T variant="small">Enter a revealed server seed, client seed and nonce to recompute any bet.</T>
+        <T variant="small">
+          Pick a game, then paste a revealed server seed, client seed, nonce and the bet’s settings. Tip: every bet’s detail page has these ready to
+          copy.
+        </T>
       )}
     </View>
   );
@@ -185,58 +188,70 @@ export default function FairnessScreen() {
   const revealed = useLiveQuery(() => listRevealedSeedPairs(20));
 
   return (
-    <Screen kicker="Verifiable RNG" title="Fairness">
-      <View className="gap-2 border border-white p-3">
-        <T variant="label">Provably fair simulation</T>
-        <T variant="small">
-          Every result is HMAC-SHA256(server seed, client seed : nonce : cursor). The server seed is committed by its SHA-256 hash before you play and
-          revealed when you rotate, so any past bet can be recomputed and checked.
+    <Screen title="Fairness" subtitle="Check that every result came from its seeds.">
+      <Panel className="gap-2">
+        <View className="flex-row items-center gap-2">
+          <ShieldCheck size={22} color={C.pos} />
+          <T variant="heading">How it works</T>
+        </View>
+        <T variant="body" className="text-soft">
+          Every result comes from HMAC-SHA256 of your server seed and “client seed:nonce:cursor”. You see the server seed’s hash before you play.
+          Rotating reveals the seed, so any past bet can be recomputed.
         </T>
-        <T variant="small" className="font-bold">
-          Offline limitation: both seeds live on this device, so this isn’t the same trust model as an online casino where a remote server keeps its
-          seed secret. It proves results are reproducible from their inputs and weren’t altered afterwards.
+        <T variant="body" className="text-soft">
+          Both seeds live on this phone, so this isn’t the same promise an online casino makes with a seed kept on its server. What it does prove:
+          each result follows from its inputs and wasn’t changed afterwards.
         </T>
-      </View>
+      </Panel>
 
-      <Section title="Active seed pair">
+      <Section title="Seeds in use">
         {commitment ? (
-          <View>
-            <KeyValue label="Client seed" value={commitment.clientSeed} copyable />
-            <KeyValue label="Server seed hash (commitment)" value={commitment.serverSeedHash} copyable />
-            <KeyValue label="Next nonce" value={String(commitment.nonce)} />
-            <View className="mt-3">
-              <Btn label="Rotate seeds" onPress={() => setRotateOpen(true)} />
+          <Panel className="py-1">
+            <KeyValue label="Your client seed" value={commitment.clientSeed} copyable />
+            <KeyValue label="Server seed hash" value={commitment.serverSeedHash} copyable />
+            <View className="flex-row items-center justify-between py-3">
+              <View>
+                <T variant="label">Next nonce</T>
+                <T variant="numLg">{commitment.nonce}</T>
+              </View>
+              <View className="w-40">
+                <Btn label="Rotate seeds" onPress={() => setRotateOpen(true)} />
+              </View>
             </View>
-          </View>
+          </Panel>
         ) : null}
       </Section>
 
-      <Section title={`Revealed pairs · ${revealed.length}`}>
+      <Section title={revealed.length ? `Revealed seeds (${revealed.length})` : "Revealed seeds"}>
         {revealed.length === 0 ? (
           <T variant="small">Nothing revealed yet. Rotate seeds to reveal the current server seed.</T>
         ) : (
           revealed.map((p) => (
-            <Animated.View key={p.id} entering={FadeIn} className="border border-white p-3">
-              <View className="flex-row justify-between">
-                <T variant="label">Pair #{p.id}</T>
-                <T variant="monoSm">
-                  {p.betCount} bets · nonces 0–{Math.max(0, p.nextNonce - 1)}
+            <Animated.View key={p.id} entering={FadeIn.duration(160)} className="rounded-[20px] bg-surface px-4 py-2">
+              <View className="flex-row justify-between pt-2">
+                <T variant="label" className="text-ink">
+                  Seed pair {p.id}
+                </T>
+                <T variant="small">
+                  {p.betCount} bets, nonces 0 to {Math.max(0, p.nextNonce - 1)}
                 </T>
               </View>
               <KeyValue label="Server seed" value={p.serverSeed} copyable />
               <KeyValue label="Server seed hash" value={p.serverSeedHash} copyable />
               <KeyValue label="Client seed" value={p.clientSeed} copyable />
-              <T variant="monoSm" className="mt-1">
-                Hash check: {hashServerSeed(p.serverSeed) === p.serverSeedHash ? "✓ matches commitment" : "✕ mismatch"} · revealed{" "}
-                {p.revealedAt ? formatTime(p.revealedAt) : ""}
+              <T variant="small" className={`py-2 ${hashServerSeed(p.serverSeed) === p.serverSeedHash ? "text-pos" : "text-neg"}`}>
+                {hashServerSeed(p.serverSeed) === p.serverSeedHash ? "✓ Seed matches the hash you were shown" : "✕ Seed does not match its hash"}
+                {p.revealedAt ? `, revealed ${formatTime(p.revealedAt)}` : ""}
               </T>
             </Animated.View>
           ))
         )}
       </Section>
 
-      <Section title="Manual verifier">
-        <ManualVerifier key={revealed[0]?.id ?? "none"} initial={revealed[0]} />
+      <Section title="Check any bet by hand">
+        <Panel>
+          <ManualVerifier />
+        </Panel>
       </Section>
 
       <RotateDialog key={rotateOpen ? "open" : "closed"} open={rotateOpen} onOpenChange={setRotateOpen} />

@@ -7,6 +7,7 @@ import { Segmented } from "@/components/common/Segmented";
 import { T } from "@/components/common/Typography";
 import { BetInput } from "@/components/game/BetInput";
 import { GameShell } from "@/components/game/GameShell";
+import { Readout } from "@/components/game/Readout";
 import { ResultBanner } from "@/components/game/ResultBanner";
 import { RevealTile, type TileFace } from "@/components/game/RevealTile";
 import { coinsToCents, formatCoins, formatMultiplier, payoutFor } from "@/engine/wallet/money";
@@ -46,7 +47,7 @@ export default function DragonTowerScreen() {
     const t = setTimeout(() => {
       setShownId(id);
       round.reveal();
-    }, 500);
+    }, 220);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished]);
@@ -77,7 +78,7 @@ export default function DragonTowerScreen() {
             className={`flex-1 flex-row items-stretch gap-1.5 rounded-xl p-0.5 ${row === currentRow ? "border-2 border-game-gold" : "border-2 border-transparent"}`}
           >
             <View className="w-14 justify-center">
-              <T variant="monoSm" className={`text-[10px] ${row < cleared ? "text-game-win" : "text-white"}`}>
+              <T variant="numSm" className={`text-[12px] ${row < cleared ? "text-game-win" : "text-ink"}`}>
                 {formatMultiplier(dragonTowerMultiplier(difficulty, row + 1))}
               </T>
             </View>
@@ -89,8 +90,8 @@ export default function DragonTowerScreen() {
                   disabled={row !== currentRow}
                   onPress={() => pickTile(col)}
                   label={`Row ${row + 1}, tile ${col + 1}`}
-                  good={<Egg size={18} color="#ffc83d" />}
-                  bad={<Flame size={18} color="#ff3d5a" />}
+                  good={<Egg size={18} color="#ffc21a" />}
+                  bad={<Flame size={18} color="#ff4d5e" />}
                 />
               </View>
             ))}
@@ -107,26 +108,13 @@ export default function DragonTowerScreen() {
   const controls = round.active ? (
     <>
       <View className="flex-row gap-2">
-        <View className="flex-1 border border-white p-2">
-          <T variant="label" className="text-[9px]">
-            Rows cleared
-          </T>
-          <T variant="mono" className="font-mono-bold">
-            {cleared} / {DRAGON_TOWER_ROWS}
-          </T>
-        </View>
-        <View className="flex-1 border border-white p-2">
-          <T variant="label" className="text-[9px]">
-            Next row
-          </T>
-          <T variant="mono" className="font-mono-bold">
-            {formatMultiplier(dragonTowerMultiplier(difficulty, cleared + 1))}
-          </T>
-        </View>
+        <Readout label="Rows cleared" value={`${cleared} / ${DRAGON_TOWER_ROWS}`} />
+        <Readout label="Next row" value={formatMultiplier(dragonTowerMultiplier(difficulty, cleared + 1))} />
       </View>
       <Btn
         label={cleared === 0 ? "Pick a tile" : `Cash out ${formatCoins(payoutFor(round.bet!.baseBet, current))}`}
         size="lg"
+        tone="mint"
         disabled={cleared === 0}
         onPress={() => round.act({ type: "cashout" }) && playSound("cashout")}
         silent
@@ -138,20 +126,20 @@ export default function DragonTowerScreen() {
       <View className="gap-2">
         <View className="flex-row justify-between">
           <T variant="label">Difficulty</T>
-          <T variant="monoSm">
+          <T variant="numSm">
             {DRAGON_TOWER_DIFFICULTIES[prefs.difficulty].cols - DRAGON_TOWER_DIFFICULTIES[prefs.difficulty].dragons}/
-            {DRAGON_TOWER_DIFFICULTIES[prefs.difficulty].cols} safe · top{" "}
+            {DRAGON_TOWER_DIFFICULTIES[prefs.difficulty].cols} safe, top prize{" "}
             {formatMultiplier(dragonTowerMultiplier(prefs.difficulty, DRAGON_TOWER_ROWS))}
           </T>
         </View>
         <Segmented
           accessibilityLabel="Difficulty"
           value={prefs.difficulty}
-          options={DIFFICULTIES.map((d) => ({ value: d, label: d.slice(0, 3) }))}
+          options={DIFFICULTIES.map((d) => ({ value: d, label: d.slice(0, 4) }))}
           onChange={(difficulty) => setPrefs({ difficulty })}
         />
       </View>
-      <Btn label="Bet" size="lg" onPress={() => round.start(prefs.bet, { difficulty: prefs.difficulty }) && playSound("bet")} silent />
+      <Btn label="Place bet" size="lg" onPress={() => round.start(prefs.bet, { difficulty: prefs.difficulty }) && playSound("bet")} silent />
     </>
   );
 

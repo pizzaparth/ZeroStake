@@ -62,9 +62,12 @@ scripts/               monte-carlo.ts, generate-sounds.mjs, generate-icons.mjs
 
 ## Theme
 
-- **App chrome is pure `#000` / `#fff`.** HeroUI tokens are overridden in `src/global.css`.
-  - Radius is 0.
-  - Disabled controls use a dashed outline, never opacity.
-  - The balance flash is a white wipe, never a grey fade.
-- **Game boards may use colour.** The palette is in `--color-game-*`.
-- **Wins and losses are always also stated in text** (WIN / LOSS / PUSH, plus a signed profit).
+- **App chrome is light:** a solid white page, warm off-white surfaces (`#F5F3EF`) and graphite text (`#141312`). Secondary text is `#6B655E`, which passes AA contrast on white.
+- **Game boards are dark insets.** They're wrapped in Uniwind `<ScopedTheme theme="dark">`, so the same tokens (`text-ink`, `bg-surface`, …) resolve to dark values there. Tokens are in `src/global.css`; raw values are in `src/config/theme.ts` (`C` for chrome, `B` for boards).
+- **Accents:** chip colours (red, blue, gold, mint) for fills. Gain and loss text uses the darker `pos`/`neg` tokens for contrast. No gradients and no shadows.
+- **Type:** Inter Tight throughout, with tabular figures for numbers.
+- **Interaction:**
+  - Every tappable element uses `PressableScale`: scale 0.97 plus a slight dim, 90 ms, run on the UI thread.
+  - Tabs switch instantly, and blurred tabs are frozen (`freezeOnBlur`), so playing never re-renders background screens.
+- **Balance changes** show as a solid mint or red pill dropping out under the balance. The pill sits above all other content and states the signed amount in text.
+- **Web preview (dev only):** `npx expo start --web` behind COOP/COEP headers. expo-sqlite's web worker can't return large sync results, and Skia needs CanvasKit there, so History and the profit chart don't render on web. Native is unaffected.

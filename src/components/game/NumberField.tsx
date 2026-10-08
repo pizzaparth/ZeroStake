@@ -1,6 +1,7 @@
-import { Input, TextField } from "heroui-native";
 import { useState } from "react";
-import { View } from "react-native";
+import { TextInput, View } from "react-native";
+
+import { C } from "@/config/theme";
 
 import { T } from "../common/Typography";
 
@@ -45,33 +46,48 @@ export function NumberField({
   };
 
   return (
-    <View className="flex-1 gap-1.5">
+    <View className="flex-1 gap-2">
       <View className="flex-row justify-between">
         <T variant="label">{label}</T>
-        {hint ? <T variant="monoSm">{hint}</T> : null}
+        {hint ? <T variant="small">{hint}</T> : null}
       </View>
-      <TextField isDisabled={disabled}>
-        <View className="relative">
-          <Input
-            value={text}
-            onChangeText={(t) => {
-              setText(t);
-              const n = Number(t);
-              if (Number.isFinite(n) && n >= min && n <= max) onChange(Math.floor(n * 10 ** decimals) / 10 ** decimals);
-            }}
-            onBlur={() => commit(text)}
-            keyboardType="decimal-pad"
-            selectTextOnFocus
-            accessibilityLabel={label}
-            className="h-11 border border-white bg-black px-3 pr-8 font-mono text-base text-white"
-          />
-          {suffix ? (
-            <View pointerEvents="none" className="absolute bottom-0 right-3 top-0 justify-center">
-              <T variant="mono">{suffix}</T>
-            </View>
-          ) : null}
-        </View>
-      </TextField>
+      <View className="h-12 flex-row items-center rounded-[14px] bg-surface px-3.5" style={{ opacity: disabled ? 0.4 : 1 }}>
+        <TextInput
+          value={text}
+          editable={!disabled}
+          onChangeText={(t) => {
+            setText(t);
+            const n = Number(t);
+            if (Number.isFinite(n) && n >= min && n <= max) onChange(Math.floor(n * 10 ** decimals) / 10 ** decimals);
+          }}
+          onBlur={() => commit(text)}
+          keyboardType="decimal-pad"
+          selectTextOnFocus
+          selectionColor={C.ink}
+          accessibilityLabel={label}
+          className="h-full flex-1 font-num text-[17px] text-ink"
+          style={{ padding: 0, fontVariant: ["tabular-nums"] }}
+        />
+        {suffix ? (
+          <T variant="num" className="text-soft">
+            {suffix}
+          </T>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+/** Read-only value box that matches NumberField. */
+export function ValueBox({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="flex-1 gap-2">
+      <T variant="label">{label}</T>
+      <View className="h-12 justify-center rounded-[14px] bg-surface px-3.5">
+        <T variant="num" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} className="text-[17px]">
+          {value}
+        </T>
+      </View>
     </View>
   );
 }

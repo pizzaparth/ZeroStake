@@ -17,7 +17,7 @@ import type { KenoOutcome } from "./engine";
 import { KENO_MAX_PICKS, KENO_TABLES, KENO_TILES } from "./payouts";
 
 const game = GAME_BY_ID.keno;
-const DRAW_MS = 110;
+const DRAW_MS = 55;
 
 /** Random picks for convenience only — they don't influence the draw, which comes from the seeds. */
 function randomPicks(count: number): number[] {
@@ -74,7 +74,7 @@ export default function KenoScreen() {
         setTimeout(() => {
           setDrawn((d) => [...d, n]);
           playSound(picks.includes(n) ? "reveal" : "tick");
-          if (i === outcome.drawn.length - 1) timers.current.push(setTimeout(done, 250));
+          if (i === outcome.drawn.length - 1) timers.current.push(setTimeout(done, 120));
         }, i * DRAW_MS),
       ),
     );
@@ -87,7 +87,7 @@ export default function KenoScreen() {
           const picked = picks.includes(n);
           const isDrawn = drawn.includes(n);
           const hit = picked && isDrawn;
-          const bg = hit ? "bg-game-win" : isDrawn ? "bg-[#3a0f18]" : picked ? "bg-game-violet" : "bg-game-tile";
+          const bg = hit ? "bg-game-win" : isDrawn ? "bg-[#43181f]" : picked ? "bg-chip-blue" : "bg-game-tile";
           return (
             <Pressable
               key={n}
@@ -97,15 +97,15 @@ export default function KenoScreen() {
               onPress={() => toggle(n)}
               className="aspect-square w-[11.8%]"
             >
-              <View className={`flex-1 items-center justify-center rounded-lg ${bg}`}>
+              <View className={`flex-1 items-center justify-center rounded-xl ${bg}`}>
                 {isDrawn ? (
-                  <Animated.View entering={animations ? ZoomIn.springify() : undefined}>
-                    <T variant="mono" className={`font-mono-bold ${hit ? "text-black" : "text-game-loss"}`}>
+                  <Animated.View entering={animations ? ZoomIn.duration(120) : undefined}>
+                    <T variant="num" className={`font-body-bold ${hit ? "text-inv" : "text-game-loss"}`}>
                       {n}
                     </T>
                   </Animated.View>
                 ) : (
-                  <T variant="mono" className={picked ? "font-mono-bold text-white" : "text-white"}>
+                  <T variant="num" className={picked ? "font-body-bold text-ink" : "text-ink"}>
                     {n}
                   </T>
                 )}
@@ -117,24 +117,25 @@ export default function KenoScreen() {
       {picks.length ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-1">
           {table.map((m, h) => (
-            <View key={h} className={`min-w-12 items-center rounded-md px-1.5 py-1 ${row && h === hits ? "bg-game-gold" : "bg-game-tile"}`}>
-              <T variant="monoSm" className={`text-[10px] ${row && h === hits ? "text-black" : "text-white"}`}>
+            <View key={h} className={`min-w-12 items-center rounded-lg px-1.5 py-1 ${row && h === hits ? "bg-game-gold" : "bg-game-tile"}`}>
+              <T variant="numSm" className={`text-[12px] ${row && h === hits ? "text-inv" : "text-ink"}`}>
                 {formatMultiplier(m)}
               </T>
-              <T variant="monoSm" className={`text-[9px] ${row && h === hits ? "text-black" : "text-white"}`}>
+              <T variant="numSm" className={`text-[11px] ${row && h === hits ? "text-inv" : "text-ink"}`}>
                 {h} hit{h === 1 ? "" : "s"}
               </T>
             </View>
           ))}
         </ScrollView>
       ) : (
-        <T variant="label" className="text-center">
+        <T variant="body" className="text-soft text-center">
           Pick 1–10 numbers
         </T>
       )}
       {row ? (
-        <T variant="label" className="text-center">
-          {hits} hits · {row.payout > row.totalBet ? "Win" : row.payout === row.totalBet ? "Push" : "Loss"} · {formatMultiplier(row.multiplier)}
+        <T variant="body" className="text-soft text-center">
+          {hits} hits, {row.payout > row.totalBet ? "win" : row.payout === row.totalBet ? "stake back" : "no win"} at{" "}
+          {formatMultiplier(row.multiplier)}
         </T>
       ) : null}
     </View>
@@ -157,7 +158,13 @@ export default function KenoScreen() {
           <Btn label="Clear" variant="outline" size="sm" disabled={busy || !picks.length} onPress={() => setPrefs({ picks: [] })} />
         </View>
       </View>
-      <Btn label={busy ? "Drawing…" : `Bet · ${picks.length} picks`} size="lg" onPress={bet} disabled={busy || !picks.length} silent />
+      <Btn
+        label={busy ? "Drawing" : picks.length ? `Play ${picks.length} numbers` : "Pick some numbers"}
+        size="lg"
+        onPress={bet}
+        disabled={busy || !picks.length}
+        silent
+      />
     </>
   );
 

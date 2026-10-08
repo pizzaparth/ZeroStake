@@ -55,10 +55,6 @@ interface RawBet {
   outcome: string | null;
   created_at: number;
   settled_at: number | null;
-  client_seed: string;
-  server_seed_hash: string;
-  server_seed: string;
-  revealed_at: number | null;
 }
 
 interface RawSeedPair {
@@ -81,7 +77,22 @@ const toSeedPair = (r: RawSeedPair): SeedPairRow => ({
   revealedAt: r.revealed_at,
 });
 
-const toBet = (r: RawBet): BetRow => ({
+/**
+ * Bet rows are read without a JOIN and enriched from their seed pair here.
+ * (expo-sqlite's web worker garbles JOIN results; there are only a handful of
+ * seed pairs, so one lookup per distinct pair is negligible.)
+ */
+function toBets(rows: RawBet[]): BetRow[] {
+  const pairs = new Map<number, RawSeedPair | null>();
+  return rows.map((r) => {
+    if (!pairs.has(r.seed_pair_id)) {
+      pairs.set(r.seed_pair_id, getDb().getFirstSync<RawSeedPair>("SELECT * FROM seed_pairs WHERE id = ?", r.seed_pair_id));
+    }
+    return toBet(r, pairs.get(r.seed_pair_id)!);
+  });
+}
+
+const toBet = (r: RawBet, s: RawSeedPair): BetRow => ({
   id: r.id,
   game: r.game as GameId,
   status: r.status,
@@ -97,15 +108,13 @@ const toBet = (r: RawBet): BetRow => ({
   outcome: r.outcome ? (JSON.parse(r.outcome) as Json) : null,
   createdAt: r.created_at,
   settledAt: r.settled_at,
-  clientSeed: r.client_seed,
-  serverSeedHash: r.server_seed_hash,
+  clientSeed: s.client_seed,
+  serverSeedHash: s.server_seed_hash,
   // Never expose the server seed of the active pair.
-  serverSeed: r.revealed_at !== null ? r.server_seed : null,
+  serverSeed: s.revealed_at !== null ? s.server_seed : null,
 });
 
-const BET_SELECT = `
-  SELECT b.*, s.client_seed, s.server_seed_hash, s.server_seed, s.revealed_at
-  FROM bets b JOIN seed_pairs s ON s.id = b.seed_pair_id`;
+const BET_SELECT = "SELECT * FROM bets b";
 
 // ─── Wallet ──────────────────────────────────────────────────────────────────
 
@@ -237,12 +246,12 @@ export function settleBetRow(id: number, actions: Json[], totalBet: Cents, payou
 
 export function readBet(id: number): BetRow | null {
   const r = getDb().getFirstSync<RawBet>(`${BET_SELECT} WHERE b.id = ?`, id);
-  return r ? toBet(r) : null;
+  return r ? toBets([r])[0] : null;
 }
 
 export function readActiveBet(game: GameId): BetRow | null {
   const r = getDb().getFirstSync<RawBet>(`${BET_SELECT} WHERE b.game = ? AND b.status = 'active' ORDER BY b.id DESC`, game);
-  return r ? toBet(r) : null;
+  return r ? toBets([r])[0] : null;
 }
 
 export function countActiveBets(seedPairId: number): number {
@@ -252,7 +261,7 @@ export function countActiveBets(seedPairId: number): number {
 export function listSettledBets(opts: { limit: number; offset: number; game?: GameId | null }): BetRow[] {
   const where = opts.game ? "AND b.game = ?" : "";
   const params: (string | number)[] = opts.game ? [opts.game, opts.limit, opts.offset] : [opts.limit, opts.offset];
-  return getDb().getAllSync<RawBet>(`${BET_SELECT} WHERE b.status = 'settled' ${where} ORDER BY b.id DESC LIMIT ? OFFSET ?`, params).map(toBet);
+  return toBets(getDb().getAllSync<RawBet>(`${BET_SELECT} WHERE b.status = 'settled' ${where} ORDER BY b.id DESC LIMIT ? OFFSET ?`, params));
 }
 
 // ─── Statistics ──────────────────────────────────────────────────────────────

@@ -4,7 +4,7 @@
 
 ZeroSteak has 13 games: Dice, Limbo, Mines, Dragon Tower, Wheel, Flip, Keno, Plinko, Hilo, Crash, Blackjack, Video Poker and Diamonds. Every result can be recomputed from its seeds (HMAC-SHA256), the theoretical RTP is calculated and shown, and history, stats and the wallet are stored in on-device SQLite. The app works fully offline and has no backend.
 
-Built with Expo SDK 57, Expo Router, React Native, TypeScript, HeroUI Native + Uniwind, Reanimated 4, Skia, FlashList, expo-sqlite and Zustand.
+Built with Expo SDK 57, Expo Router, React Native, TypeScript, HeroUI Native + Uniwind, Reanimated 4, Skia, FlashList, expo-sqlite and Zustand. The UI is light (solid white, graphite text) with dark game boards and flat casino-chip accents. There are no gradients.
 
 ## Run it
 

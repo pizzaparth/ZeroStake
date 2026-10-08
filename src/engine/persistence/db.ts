@@ -1,4 +1,5 @@
-import { openDatabaseSync, type SQLiteDatabase } from "expo-sqlite";
+import { openDatabaseAsync, openDatabaseSync, type SQLiteDatabase } from "expo-sqlite";
+import { Platform } from "react-native";
 
 import { MIGRATIONS } from "./migrations";
 
@@ -21,6 +22,17 @@ export function getDb(): SQLiteDatabase {
     migrate(db);
   }
   return db;
+}
+
+/**
+ * Web preview only: expo-sqlite's web build runs SQLite in a worker that has
+ * to boot before a synchronous call can succeed. Native is ready immediately.
+ */
+export async function prepareDb(): Promise<void> {
+  if (Platform.OS !== "web" || db) return;
+  db = await openDatabaseAsync(DB_NAME);
+  await db.execAsync("PRAGMA foreign_keys = ON;");
+  migrate(db);
 }
 
 function migrate(database: SQLiteDatabase) {

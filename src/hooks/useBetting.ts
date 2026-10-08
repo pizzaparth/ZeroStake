@@ -51,6 +51,7 @@ function useErrorToast() {
   const { toast } = useToast();
   return useCallback(
     (e: unknown) => {
+      if (__DEV__) console.warn("[ZeroSteak] bet failed", e);
       const message = e instanceof BetError ? e.message : e instanceof Error ? e.message : "Something went wrong";
       toast.show({ variant: "danger", label: message });
     },

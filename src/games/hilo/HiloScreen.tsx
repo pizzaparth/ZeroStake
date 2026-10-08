@@ -8,7 +8,6 @@ import { BetInput } from "@/components/game/BetInput";
 import { GameShell } from "@/components/game/GameShell";
 import { PlayingCard } from "@/components/game/PlayingCard";
 import { ResultBanner } from "@/components/game/ResultBanner";
-import { rankLabel } from "@/engine/cards/deck";
 import { coinsToCents, formatCoins, formatMultiplier, payoutFor } from "@/engine/wallet/money";
 import { GAME_BY_ID } from "@/games/registry";
 import { useGamePrefs, useRound } from "@/hooks/useBetting";
@@ -44,7 +43,7 @@ export default function HiloScreen() {
     const t = setTimeout(() => {
       setShownId(id);
       round.reveal();
-    }, 550);
+    }, 240);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished]);
@@ -72,8 +71,8 @@ export default function HiloScreen() {
           <PlayingCard card={null} faceDown size="lg" />
         )}
         {state && current ? (
-          <T variant="label">
-            {rankLabel(current.rank)} · {state.deck.length - state.position - 1} cards left
+          <T variant="body" className="text-soft">
+            {state.deck.length - state.position - 1} cards left in the deck
           </T>
         ) : null}
       </View>
@@ -81,7 +80,7 @@ export default function HiloScreen() {
         {steps.slice(0, -1).map((s, i) => (
           <View key={i} className="items-center gap-1">
             <PlayingCard card={s.card} size="sm" />
-            <T variant="monoSm" className="text-[9px]">
+            <T variant="numSm" className="text-[11px]">
               {s.via === "start" ? "start" : s.via === "skip" ? "skip" : s.via === "higher" ? "▲" : "▼"}
             </T>
           </View>
@@ -104,13 +103,13 @@ export default function HiloScreen() {
               <View key={g} className="flex-1 gap-1">
                 <Btn
                   label={g === "higher" ? "Higher" : "Lower"}
-                  icon={g === "higher" ? <ArrowUp size={16} color="#000" /> : <ArrowDown size={16} color="#000" />}
+                  icon={g === "higher" ? <ArrowUp size={16} color="#1a1030" /> : <ArrowDown size={16} color="#1a1030" />}
                   onPress={() => guess(g)}
                   disabled={p === 0}
                   silent
                 />
-                <T variant="monoSm" className="text-center text-[10px]">
-                  {(p * 100).toFixed(1)}% · {next ? formatMultiplier(next) : "—"}
+                <T variant="numSm" className="text-center text-[12px]">
+                  {(p * 100).toFixed(1)}% chance, pays {next ? formatMultiplier(next) : "—"}
                 </T>
               </View>
             );
@@ -135,12 +134,12 @@ export default function HiloScreen() {
             />
           </View>
         </View>
-        <T variant="monoSm">Current multiplier {formatMultiplier(multiplier)} · ties lose</T>
+        <T variant="small">You hold {formatMultiplier(multiplier)}. Same rank counts as a loss.</T>
       </>
     ) : (
       <>
         <BetInput value={prefs.bet} onChange={(b) => setPrefs({ bet: b })} />
-        <Btn label="Bet" size="lg" onPress={() => round.start(prefs.bet, {}) && playSound("card")} silent />
+        <Btn label="Deal first card" size="lg" onPress={() => round.start(prefs.bet, {}) && playSound("card")} silent />
       </>
     );
 

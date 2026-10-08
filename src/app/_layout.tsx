@@ -1,10 +1,11 @@
 import "../global.css";
 
-import { JetBrainsMono_300Light } from "@expo-google-fonts/jetbrains-mono/300Light";
-import { JetBrainsMono_500Medium } from "@expo-google-fonts/jetbrains-mono/500Medium";
-import { JetBrainsMono_700Bold } from "@expo-google-fonts/jetbrains-mono/700Bold";
+import { InterTight_500Medium } from "@expo-google-fonts/inter-tight/500Medium";
+import { InterTight_600SemiBold } from "@expo-google-fonts/inter-tight/600SemiBold";
+import { InterTight_700Bold } from "@expo-google-fonts/inter-tight/700Bold";
+import { InterTight_800ExtraBold } from "@expo-google-fonts/inter-tight/800ExtraBold";
 import { useFonts } from "expo-font";
-import { DarkTheme, Stack, ThemeProvider } from "expo-router";
+import { DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { HeroUINativeProvider } from "heroui-native";
@@ -13,24 +14,32 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Uniwind } from "uniwind";
 
 import { FirstLaunchNotice } from "@/components/common/FirstLaunchNotice";
+import { C } from "@/config/theme";
+import { prepareDb } from "@/engine/persistence/db";
 import { useAppStore } from "@/store/appStore";
 
 SplashScreen.preventAutoHideAsync();
-Uniwind.setTheme("dark");
+Uniwind.setTheme("light");
 
 const navTheme = {
-  ...DarkTheme,
-  colors: { ...DarkTheme.colors, background: "#000000", card: "#000000", border: "#ffffff", text: "#ffffff", primary: "#ffffff" },
+  ...DefaultTheme,
+  colors: { ...DefaultTheme.colors, background: C.page, card: C.page, border: C.line, text: C.ink, primary: C.ink },
 };
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({ JetBrainsMono_300Light, JetBrainsMono_500Medium, JetBrainsMono_700Bold });
+  const [fontsLoaded] = useFonts({
+    InterTight_500Medium,
+    InterTight_600SemiBold,
+    InterTight_700Bold,
+    InterTight_800ExtraBold,
+  });
   const ready = useAppStore((s) => s.ready);
   const animations = useAppStore((s) => s.settings.animations);
+  const acknowledged = useAppStore((s) => s.settings.acknowledged);
 
   useEffect(() => {
     // Offline startup: open SQLite → migrate → load wallet, seeds, settings.
-    useAppStore.getState().init();
+    void prepareDb().then(() => useAppStore.getState().init());
   }, []);
 
   useEffect(() => {
@@ -40,22 +49,31 @@ export default function RootLayout() {
   if (!fontsLoaded || !ready) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#000000" }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: C.page }}>
       <HeroUINativeProvider
         config={{
           animation: animations ? undefined : "disable-all",
-          toast: { defaultProps: { placement: "bottom" } },
+          toast: { defaultProps: { placement: "top" } },
           devInfo: { stylingPrinciples: false },
         }}
       >
         <ThemeProvider value={navTheme}>
-          <StatusBar style="light" />
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: "#000000" }, animation: animations ? "default" : "none" }}>
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="game/[id]" options={{ animation: animations ? "slide_from_right" : "none", gestureEnabled: true }} />
-            <Stack.Screen name="bet/[id]" options={{ presentation: "modal", animation: animations ? "slide_from_bottom" : "none" }} />
-          </Stack>
-          <FirstLaunchNotice />
+          <StatusBar style="dark" />
+          {!acknowledged ? (
+            <FirstLaunchNotice />
+          ) : (
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: C.page },
+                animation: animations ? "default" : "none",
+              }}
+            >
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="game/[id]" options={{ animation: animations ? "slide_from_right" : "none", gestureEnabled: true }} />
+              <Stack.Screen name="bet/[id]" options={{ presentation: "modal", animation: animations ? "slide_from_bottom" : "none" }} />
+            </Stack>
+          )}
         </ThemeProvider>
       </HeroUINativeProvider>
     </GestureHandlerRootView>

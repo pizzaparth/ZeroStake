@@ -1,40 +1,45 @@
 import { router } from "expo-router";
 import { ChevronLeft, Info } from "lucide-react-native";
 import { useState, type ReactNode } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ScopedTheme } from "uniwind";
 
+import { C } from "@/config/theme";
 import type { GameMeta } from "@/games/registry";
 import { useAppStore } from "@/store/appStore";
 import { BalanceDisplay } from "../common/BalanceDisplay";
+import { PressableScale } from "../common/PressableScale";
 import { T } from "../common/Typography";
 import { GameInfoSheet } from "./GameInfoSheet";
 
-function IconButton({ label, onPress, children }: { label: string; onPress: () => void; children: (pressed: boolean) => ReactNode }) {
+function RoundButton({ label, onPress, children }: { label: string; onPress: () => void; children: ReactNode }) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className="h-10 w-10 items-center justify-center border border-white active:bg-white"
+      hitSlop={8}
+      scaleTo={0.92}
+      className="h-10 w-10 items-center justify-center rounded-full bg-surface"
     >
-      {({ pressed }) => children(pressed)}
-    </Pressable>
+      {children}
+    </PressableScale>
   );
 }
 
 export interface GameShellProps {
   game: GameMeta;
-  /** The coloured game board (games may use colour; chrome may not). */
+  /** The game board. Rendered in the dark board theme. */
   board: ReactNode;
-  /** Bet controls + primary action, rendered on black under the board. */
+  /** Bet controls + primary action, on the white panel under the board. */
   controls: ReactNode;
 }
 
 /**
- * Shared frame for every game: header (back, title, balance, info),
- * a flexible board area, and a controls panel. Mobile-first: the board takes
- * the remaining height and the controls scroll if a small phone needs it.
+ * Shared frame for every game: white header, a dark rounded board inset
+ * (where the game's colour lives), and the controls below. The header is
+ * stacked above the board so the balance-change pill is never hidden.
  */
 export function GameShell({ game, board, controls }: GameShellProps) {
   const insets = useSafeAreaInsets();
@@ -43,38 +48,43 @@ export function GameShell({ game, board, controls }: GameShellProps) {
   const showRng = useAppStore((s) => s.settings.showRngDetails);
 
   return (
-    <View className="flex-1 bg-black" style={{ paddingTop: insets.top }}>
-      <View className="flex-row items-center gap-3 border-b-[3px] border-white px-4 pb-3 pt-2">
-        <IconButton label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}>
-          {(p) => <ChevronLeft size={20} color={p ? "#000" : "#fff"} />}
-        </IconButton>
-        <T variant="heading" accessibilityRole="header" className="flex-1 text-2xl font-black uppercase" numberOfLines={1} adjustsFontSizeToFit>
+    <View className="flex-1 bg-page" style={{ paddingTop: insets.top }}>
+      <View className="flex-row items-center gap-3 bg-page px-4 pb-3 pt-1" style={{ zIndex: 20, elevation: 20 }}>
+        <RoundButton label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace("/"))}>
+          <ChevronLeft size={22} color={C.ink} />
+        </RoundButton>
+        <T
+          variant="heading"
+          accessibilityRole="header"
+          className="flex-1 text-[20px] leading-[26px]"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+        >
           {game.name}
         </T>
         <BalanceDisplay />
-        <IconButton label={`${game.name} info`} onPress={() => setInfo(true)}>
-          {(p) => <Info size={18} color={p ? "#000" : "#fff"} />}
-        </IconButton>
+        <RoundButton label={`How ${game.name} works`} onPress={() => setInfo(true)}>
+          <Info size={19} color={C.ink} />
+        </RoundButton>
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} className="flex-1">
-        <View className="flex-1 bg-game-board">{board}</View>
+        <ScopedTheme theme="dark">
+          <View className="mx-3 flex-1 overflow-hidden rounded-3xl bg-game-board">{board}</View>
+        </ScopedTheme>
         {showRng && commitment ? (
-          <View className="flex-row justify-between border-t border-white px-4 py-1.5">
-            <T variant="monoSm" className="text-[10px]">
-              nonce {commitment.nonce}
+          <View className="flex-row justify-between gap-2 px-5 pt-2">
+            <T variant="numSm">Nonce {commitment.nonce}</T>
+            <T variant="numSm" numberOfLines={1} className="flex-1 text-center">
+              Client {commitment.clientSeed.slice(0, 10)}
             </T>
-            <T variant="monoSm" className="text-[10px]" numberOfLines={1}>
-              client {commitment.clientSeed.slice(0, 12)}
-            </T>
-            <T variant="monoSm" className="text-[10px]">
-              hash {commitment.serverSeedHash.slice(0, 10)}…
-            </T>
+            <T variant="numSm">Hash {commitment.serverSeedHash.slice(0, 8)}</T>
           </View>
         ) : null}
         <ScrollView
-          className="max-h-[48%] grow-0 border-t-[3px] border-white bg-black"
-          contentContainerStyle={{ padding: 16, paddingBottom: insets.bottom + 16, gap: 14 }}
+          className="max-h-[52%] grow-0"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: insets.bottom + 12, gap: 14 }}
           keyboardShouldPersistTaps="handled"
           bounces={false}
         >

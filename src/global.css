@@ -3,109 +3,153 @@
 @import "heroui-native/styles";
 
 /*
- * ZeroSteak — AMOLED Swiss theme.
- * App chrome uses ONLY pure black (#000) and pure white (#fff): no greys,
- * no tints. Hierarchy comes from weight, size, case, rules and inversion
- * (white block / black text) instead of shades. Games may use colour.
- * Both variants are identical; the app forces dark.
+ * ZeroSteak theme.
+ * App chrome: solid white page, warm off-white surfaces, graphite text ("light").
+ * Game boards: dark graphite insets ("dark", applied with <ScopedTheme theme="dark">)
+ * so chip colours glow on the board while the app stays bright and calm.
+ * Flat colour only — no gradients, no drop shadows.
  */
 @theme {
-  --radius: 0px;
+  --radius: 0.875rem;
   --border-width: 1px;
   --field-border-width: 1px;
-  --field-radius: 0px;
-  --opacity-disabled: 1;
+  --field-radius: 14px;
 
-  --font-mono: "JetBrainsMono_500Medium";
-  --font-mono-bold: "JetBrainsMono_700Bold";
-  --font-mono-light: "JetBrainsMono_300Light";
+  --font-display: "InterTight_800ExtraBold";
+  --font-display-semi: "InterTight_700Bold";
+  --font-body: "InterTight_500Medium";
+  --font-body-bold: "InterTight_600SemiBold";
+  --font-num: "InterTight_600SemiBold";
 
-  /* Game palette (used only inside game boards) */
-  --color-game-board: #0b0f14;
-  --color-game-tile: #18212b;
-  --color-game-tile-raised: #24303d;
-  --color-game-win: #2bff88;
-  --color-game-loss: #ff3d5a;
-  --color-game-gold: #ffc83d;
-  --color-game-sky: #49b8ff;
-  --color-game-violet: #9c6bff;
+  /* Chip accents (same in both themes) */
+  --color-chip-red: #f0384c;
+  --color-chip-blue: #2f6bf0;
+  --color-chip-gold: #ffc21a;
+  --color-chip-mint: #16c98d;
+  --color-inv: #141312;
+  /* Gain / loss TEXT on light surfaces (chip fills are too light for text: AA needs 4.5:1) */
+  --color-pos: #0a7d55;
+  --color-neg: #cf2438;
+
+  /* Game-board colours (boards are always dark) */
+  --color-game-board: #1b1a18;
+  --color-game-tile: #2c2a27;
+  --color-game-tile-raised: #3a3733;
+  --color-game-win: #22d69a;
+  --color-game-loss: #ff4d5e;
+  --color-game-gold: #ffc21a;
+  --color-game-sky: #4c8dff;
+  --color-game-violet: #a77bff;
+}
+
+/* Theme-dependent app tokens */
+@theme inline static {
+  --color-page: var(--zs-page);
+  --color-surface: var(--zs-surface);
+  --color-surface-2: var(--zs-surface-2);
+  --color-well: var(--zs-well);
+  --color-line: var(--zs-line);
+  --color-ink: var(--zs-ink);
+  --color-soft: var(--zs-soft);
+  --color-primary: var(--zs-primary);
+  --color-on-primary: var(--zs-on-primary);
 }
 
 @layer theme {
   :root {
     @variant light {
-      --background: #000000;
-      --foreground: #ffffff;
-      --surface: #000000;
-      --surface-foreground: #ffffff;
-      --surface-secondary: #000000;
-      --surface-secondary-foreground: #ffffff;
-      --surface-tertiary: #000000;
-      --surface-tertiary-foreground: #ffffff;
-      --overlay: #000000;
-      --overlay-foreground: #ffffff;
-      --backdrop: rgba(0, 0, 0, 0.85);
-      --muted: #ffffff;
-      --default: #000000;
-      --default-foreground: #ffffff;
-      --accent: #ffffff;
-      --accent-foreground: #000000;
-      --field-background: #000000;
-      --field-foreground: #ffffff;
-      --field-placeholder: #ffffff;
-      --field-border: #ffffff;
-      --success: #ffffff;
-      --success-foreground: #000000;
-      --warning: #ffffff;
-      --warning-foreground: #000000;
-      --danger: #ffffff;
-      --danger-foreground: #000000;
+      --zs-page: #ffffff;
+      --zs-surface: #f5f3ef;
+      --zs-surface-2: #ebe8e2;
+      --zs-well: #ffffff;
+      --zs-line: #e4e0d8;
+      --zs-ink: #141312;
+      --zs-soft: #6b655e;
+      --zs-primary: #141312;
+      --zs-on-primary: #ffffff;
+
+      --background: #ffffff;
+      --foreground: #141312;
+      --surface: #f5f3ef;
+      --surface-foreground: #141312;
+      --surface-secondary: #ebe8e2;
+      --surface-secondary-foreground: #141312;
+      --surface-tertiary: #e4e0d8;
+      --surface-tertiary-foreground: #141312;
+      --overlay: #ffffff;
+      --overlay-foreground: #141312;
+      --backdrop: rgba(20, 19, 18, 0.45);
+      --muted: #6b655e;
+      --default: #ebe8e2;
+      --default-foreground: #141312;
+      --accent: #141312;
+      --accent-foreground: #ffffff;
+      --field-background: #f5f3ef;
+      --field-foreground: #141312;
+      --field-placeholder: #8f887f;
+      --field-border: #e4e0d8;
+      --success: #16c98d;
+      --success-foreground: #141312;
+      --warning: #ffc21a;
+      --warning-foreground: #141312;
+      --danger: #f0384c;
+      --danger-foreground: #ffffff;
       --segment: #ffffff;
-      --segment-foreground: #000000;
-      --border: #ffffff;
-      --separator: #ffffff;
-      --focus: #ffffff;
-      --link: #ffffff;
+      --segment-foreground: #141312;
+      --border: #e4e0d8;
+      --separator: #e4e0d8;
+      --focus: #141312;
+      --link: #141312;
       --surface-shadow: 0 0 0 0 transparent inset;
-      --overlay-shadow: 0 0 0 1px #ffffff inset;
+      --overlay-shadow: 0 0 0 1px #e4e0d8 inset;
       --field-shadow: 0 0 0 0 transparent inset;
     }
 
     @variant dark {
-      --background: #000000;
-      --foreground: #ffffff;
-      --surface: #000000;
-      --surface-foreground: #ffffff;
-      --surface-secondary: #000000;
-      --surface-secondary-foreground: #ffffff;
-      --surface-tertiary: #000000;
-      --surface-tertiary-foreground: #ffffff;
-      --overlay: #000000;
-      --overlay-foreground: #ffffff;
-      --backdrop: rgba(0, 0, 0, 0.85);
-      --muted: #ffffff;
-      --default: #000000;
-      --default-foreground: #ffffff;
-      --accent: #ffffff;
-      --accent-foreground: #000000;
-      --field-background: #000000;
-      --field-foreground: #ffffff;
-      --field-placeholder: #ffffff;
-      --field-border: #ffffff;
-      --success: #ffffff;
-      --success-foreground: #000000;
-      --warning: #ffffff;
-      --warning-foreground: #000000;
-      --danger: #ffffff;
-      --danger-foreground: #000000;
-      --segment: #ffffff;
-      --segment-foreground: #000000;
-      --border: #ffffff;
-      --separator: #ffffff;
-      --focus: #ffffff;
-      --link: #ffffff;
+      --zs-page: #1b1a18;
+      --zs-surface: #2c2a27;
+      --zs-surface-2: #3a3733;
+      --zs-well: #242220;
+      --zs-line: #3a3733;
+      --zs-ink: #f5f1ea;
+      --zs-soft: #b5ada3;
+      --zs-primary: #f5f1ea;
+      --zs-on-primary: #141312;
+
+      --background: #1b1a18;
+      --foreground: #f5f1ea;
+      --surface: #2c2a27;
+      --surface-foreground: #f5f1ea;
+      --surface-secondary: #3a3733;
+      --surface-secondary-foreground: #f5f1ea;
+      --surface-tertiary: #242220;
+      --surface-tertiary-foreground: #f5f1ea;
+      --overlay: #2c2a27;
+      --overlay-foreground: #f5f1ea;
+      --backdrop: rgba(0, 0, 0, 0.6);
+      --muted: #b5ada3;
+      --default: #3a3733;
+      --default-foreground: #f5f1ea;
+      --accent: #f5f1ea;
+      --accent-foreground: #141312;
+      --field-background: #242220;
+      --field-foreground: #f5f1ea;
+      --field-placeholder: #8f887f;
+      --field-border: #3a3733;
+      --success: #22d69a;
+      --success-foreground: #141312;
+      --warning: #ffc21a;
+      --warning-foreground: #141312;
+      --danger: #ff4d5e;
+      --danger-foreground: #141312;
+      --segment: #f5f1ea;
+      --segment-foreground: #141312;
+      --border: #3a3733;
+      --separator: #3a3733;
+      --focus: #f5f1ea;
+      --link: #f5f1ea;
       --surface-shadow: 0 0 0 0 transparent inset;
-      --overlay-shadow: 0 0 0 1px #ffffff inset;
+      --overlay-shadow: 0 0 0 1px #3a3733 inset;
       --field-shadow: 0 0 0 0 transparent inset;
     }
   }

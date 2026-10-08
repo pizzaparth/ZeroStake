@@ -13,13 +13,14 @@ import type { BetRow } from "@/engine/persistence/storage";
 import { coinsToCents, formatMultiplier } from "@/engine/wallet/money";
 import { GAME_BY_ID } from "@/games/registry";
 import { useGamePrefs, useInstantBet } from "@/hooks/useBetting";
+import { B, MOTION } from "@/config/theme";
 import { useAppStore } from "@/store/appStore";
 import { playSound } from "@/utils/feedback";
 import type { PlinkoOutcome } from "./engine";
 import { PLINKO_ROW_OPTIONS, plinkoTable, type PlinkoRisk, type PlinkoRows } from "./payouts";
 
 const game = GAME_BY_ID.plinko;
-const STEP_MS = 120;
+const STEP_MS = 65;
 const MAX_BALLS = 12;
 
 interface Geometry {
@@ -37,10 +38,10 @@ const yAt = (g: Geometry, row: number) => g.top + row * g.rowH;
 function bucketColor(i: number, n: number): string {
   // Edges hot (red), centre cool (gold), purely positional like a heat map.
   const d = Math.abs(i - n / 2) / (n / 2);
-  if (d > 0.75) return "#ff3d5a";
-  if (d > 0.5) return "#ff6b3d";
-  if (d > 0.25) return "#ff9a3d";
-  return "#ffc83d";
+  if (d > 0.75) return B.loss;
+  if (d > 0.5) return B.orange;
+  if (d > 0.25) return B.gold;
+  return B.win;
 }
 
 /**
@@ -79,19 +80,23 @@ const Ball = memo(function Ball({ g, path, onLand }: { g: Geometry; path: ("L" |
 
   const style = useAnimatedStyle(() => ({ transform: [{ translateX: x.value - g.ball / 2 }, { translateY: y.value - g.ball / 2 }] }));
   return (
-    <Animated.View pointerEvents="none" className="absolute left-0 top-0 rounded-full bg-white" style={[{ width: g.ball, height: g.ball }, style]} />
+    <Animated.View
+      pointerEvents="none"
+      className="absolute left-0 top-0 rounded-full bg-chip-gold"
+      style={[{ width: g.ball, height: g.ball }, style]}
+    />
   );
 });
 
 function Bucket({ m, color, hits }: { m: number; color: string; hits: number }) {
   const drop = useSharedValue(0);
   useEffect(() => {
-    if (hits > 0) drop.value = withSequence(withTiming(6, { duration: 80 }), withSpring(0));
+    if (hits > 0) drop.value = withSequence(withTiming(6, { duration: 60 }), withSpring(0, MOTION.spring));
   }, [hits, drop]);
   const style = useAnimatedStyle(() => ({ transform: [{ translateY: drop.value }] }));
   return (
-    <Animated.View className="flex-1 items-center justify-center rounded-md py-1.5" style={[{ backgroundColor: color }, style]}>
-      <T variant="monoSm" className="text-[8px] text-black" numberOfLines={1} adjustsFontSizeToFit>
+    <Animated.View className="flex-1 items-center justify-center rounded-lg py-1.5" style={[{ backgroundColor: color }, style]}>
+      <T variant="numSm" className="text-[8px] text-inv" numberOfLines={1} adjustsFontSizeToFit>
         {m >= 100 ? Math.round(m) : m}
       </T>
     </Animated.View>
@@ -156,7 +161,7 @@ export default function PlinkoScreen() {
                     cx={g.width / 2 + (j - 1 - r / 2) * g.spacing}
                     cy={yAt(g, r)}
                     r={Math.max(2, g.spacing * 0.12)}
-                    fill="#ffffff"
+                    fill={B.soft}
                   />
                 )),
               )}
@@ -176,8 +181,8 @@ export default function PlinkoScreen() {
         ) : null}
         <View className="absolute right-0 top-0 gap-1">
           {history.map((h) => (
-            <View key={h.id} className={`items-center rounded px-1.5 py-0.5 ${h.m >= 1 ? "bg-game-win" : "bg-game-tile"}`}>
-              <T variant="monoSm" className={`text-[10px] ${h.m >= 1 ? "text-black" : "text-white"}`}>
+            <View key={h.id} className={`items-center rounded-full px-2 py-0.5 ${h.m >= 1 ? "bg-game-win" : "bg-game-tile"}`}>
+              <T variant="numSm" className={`text-[12px] ${h.m >= 1 ? "text-inv" : "text-ink"}`}>
                 {formatMultiplier(h.m)}
               </T>
             </View>
@@ -205,7 +210,7 @@ export default function PlinkoScreen() {
         disabled={busy}
       />
       <Btn
-        label={`Drop ball${balls.length ? ` · ${balls.length} falling` : ""}`}
+        label={balls.length ? `Drop another (${balls.length} falling)` : "Drop ball"}
         size="lg"
         onPress={drop}
         disabled={balls.length >= MAX_BALLS}

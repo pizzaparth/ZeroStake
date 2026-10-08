@@ -1,5 +1,5 @@
 /**
- * Draws the ZeroSteak mark — a slashed zero (Ø) in pure white on pure black —
+ * Draws the ZeroSteak mark — a slashed zero (Ø) in chip gold on graphite —
  * and writes the app icon, adaptive-icon layers, splash and favicon as PNGs.
  * No image tooling needed: shapes are rasterised here with 4×4 supersampling.
  *
@@ -11,6 +11,8 @@ import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
 
 const out = join(dirname(fileURLToPath(import.meta.url)), "..", "assets", "images");
+const BG = [0x14, 0x13, 0x12]; // graphite
+const FG = [0xff, 0xc2, 0x1a]; // chip gold
 
 const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
   let c = n;
@@ -32,7 +34,7 @@ const chunk = (type, data) => {
 };
 
 /** RGBA PNG from a coverage function cov(x, y) ∈ [0, 1] (1 = white mark). */
-function png(size, cov, { transparent = false } = {}) {
+function png(size, cov, { transparent = false, fg = FG } = {}) {
   const raw = Buffer.alloc(size * (size * 4 + 1));
   const SS = 4;
   for (let y = 0; y < size; y++) {
@@ -42,12 +44,11 @@ function png(size, cov, { transparent = false } = {}) {
       for (let sy = 0; sy < SS; sy++) for (let sx = 0; sx < SS; sx++) a += cov((x + (sx + 0.5) / SS) / size, (y + (sy + 0.5) / SS) / size);
       a /= SS * SS;
       const i = y * (size * 4 + 1) + 1 + x * 4;
-      const v = Math.round(a * 255);
       if (transparent) {
-        raw[i] = raw[i + 1] = raw[i + 2] = 255;
-        raw[i + 3] = v;
+        [raw[i], raw[i + 1], raw[i + 2]] = fg;
+        raw[i + 3] = Math.round(a * 255);
       } else {
-        raw[i] = raw[i + 1] = raw[i + 2] = v;
+        for (let c = 0; c < 3; c++) raw[i + c] = Math.round(BG[c] + (FG[c] - BG[c]) * a);
         raw[i + 3] = 255;
       }
     }
@@ -85,6 +86,7 @@ const mark = (s) => (u, v) => {
 writeFileSync(join(out, "icon.png"), png(1024, mark(1)));
 writeFileSync(join(out, "android-icon-foreground.png"), png(512, mark(0.62), { transparent: true }));
 writeFileSync(join(out, "android-icon-monochrome.png"), png(432, mark(0.62), { transparent: true }));
-writeFileSync(join(out, "splash-icon.png"), png(512, mark(1), { transparent: true }));
+// Splash sits on the white page, so the mark is graphite there.
+writeFileSync(join(out, "splash-icon.png"), png(512, mark(1), { transparent: true, fg: BG }));
 writeFileSync(join(out, "favicon.png"), png(48, mark(1)));
 console.log("icons written to assets/images");

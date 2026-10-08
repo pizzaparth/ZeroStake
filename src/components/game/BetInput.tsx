@@ -1,39 +1,39 @@
-import { Input, TextField } from "heroui-native";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { TextInput, View } from "react-native";
 
-import { CURRENCY_NAME } from "@/config/app";
+import { C } from "@/config/theme";
 import { centsToCoins, formatCoins, parseCoins, type Cents } from "@/engine/wallet/money";
 import { useAppStore } from "@/store/appStore";
 import { haptic } from "@/utils/feedback";
+import { ChipCoin } from "../common/ChipCoin";
+import { PressableScale } from "../common/PressableScale";
 import { T } from "../common/Typography";
 
 export interface BetInputProps {
   value: Cents;
   onChange: (value: Cents) => void;
   disabled?: boolean;
-  /** Extra caption under the field, e.g. potential profit. */
+  /** Extra line under the field, e.g. potential profit. */
   caption?: string;
 }
 
-function Chip({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
+function Shortcut({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
       accessibilityLabel={label}
       disabled={disabled}
+      scaleTo={0.92}
       onPress={() => {
         haptic("select");
         onPress();
       }}
-      className={`h-11 min-w-11 items-center justify-center border border-white px-2 active:bg-white ${disabled ? "border-dashed" : ""}`}
+      className="h-12 min-w-12 items-center justify-center rounded-[14px] bg-surface px-3.5"
     >
-      {({ pressed }) => (
-        <T variant="label" inverted={pressed} className="text-[10px]">
-          {label}
-        </T>
-      )}
-    </Pressable>
+      <T variant="label" className="text-[14px] text-ink">
+        {label}
+      </T>
+    </PressableScale>
   );
 }
 
@@ -55,13 +55,20 @@ export function BetInput({ value, onChange, disabled, caption }: BetInputProps) 
   return (
     <View className="gap-2">
       <View className="flex-row items-center justify-between">
-        <T variant="label">Bet amount</T>
-        <T variant="monoSm">{invalid ? "Exceeds balance" : `${formatCoins(value)} ${CURRENCY_NAME}`}</T>
+        <T variant="label">Bet</T>
+        <T variant="small" className={invalid ? "text-neg" : ""}>
+          {invalid ? `More than your ${formatCoins(balance)} balance` : (caption ?? "")}
+        </T>
       </View>
       <View className="flex-row items-stretch gap-2">
-        <TextField isDisabled={disabled} isInvalid={invalid} className="flex-1">
-          <Input
+        <View
+          className={`h-12 flex-1 flex-row items-center gap-2.5 rounded-[14px] border bg-surface pl-3.5 pr-3 ${invalid ? "border-neg" : "border-surface"}`}
+          style={{ opacity: disabled ? 0.4 : 1 }}
+        >
+          <ChipCoin size={20} />
+          <TextInput
             value={text}
+            editable={!disabled}
             onChangeText={(t) => {
               setText(t);
               const cents = parseCoins(t);
@@ -70,15 +77,16 @@ export function BetInput({ value, onChange, disabled, caption }: BetInputProps) 
             onBlur={() => setText(centsToCoins(value).toFixed(2))}
             keyboardType="decimal-pad"
             selectTextOnFocus
+            selectionColor={C.ink}
             accessibilityLabel="Bet amount in coins"
-            className={`h-11 border border-white bg-black px-3 font-mono text-base text-white ${invalid ? "border-dashed" : ""}`}
+            className="h-full flex-1 font-num text-[17px] text-ink"
+            style={{ padding: 0, fontVariant: ["tabular-nums"] }}
           />
-        </TextField>
-        <Chip label="½" onPress={() => set(Math.floor(value / 2))} disabled={disabled} />
-        <Chip label="2×" onPress={() => set(value * 2)} disabled={disabled} />
-        <Chip label="Max" onPress={() => set(balance)} disabled={disabled} />
+        </View>
+        <Shortcut label="½" onPress={() => set(Math.floor(value / 2))} disabled={disabled} />
+        <Shortcut label="2×" onPress={() => set(value * 2)} disabled={disabled} />
+        <Shortcut label="Max" onPress={() => set(balance)} disabled={disabled} />
       </View>
-      {caption ? <T variant="monoSm">{caption}</T> : null}
     </View>
   );
 }

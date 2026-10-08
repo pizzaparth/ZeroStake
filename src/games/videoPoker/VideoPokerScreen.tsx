@@ -29,7 +29,7 @@ export default function VideoPokerScreen() {
 
   useEffect(() => {
     if (!finished) return;
-    const t = setTimeout(() => round.reveal(), 600);
+    const t = setTimeout(() => round.reveal(), 250);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished]);
@@ -45,10 +45,10 @@ export default function VideoPokerScreen() {
           const active = category === c;
           return (
             <View key={c} className={`flex-row justify-between rounded px-2 py-0.5 ${active ? "bg-game-gold" : ""}`}>
-              <T variant="monoSm" className={`text-[11px] ${active ? "text-black" : "text-white"}`}>
+              <T variant="numSm" className={`text-[11px] ${active ? "text-inv" : "text-ink"}`}>
                 {POKER_LABELS[c]}
               </T>
-              <T variant="monoSm" className={`text-[11px] ${active ? "text-black" : "text-white"}`}>
+              <T variant="numSm" className={`text-[11px] ${active ? "text-inv" : "text-ink"}`}>
                 {VIDEO_POKER_PAYTABLE[c]}×
               </T>
             </View>
@@ -69,19 +69,19 @@ export default function VideoPokerScreen() {
             }}
             className="items-center gap-1"
           >
-            <PlayingCard card={c} faceDown={!c} size="sm" delay={i * 70} highlight={state && holds[i] ? "hold" : null} />
-            <T variant="label" className={`text-[9px] ${state && holds[i] ? "text-game-gold" : "text-white"}`}>
+            <PlayingCard card={c} faceDown={!c} size="sm" delay={i * 40} highlight={state && holds[i] ? "hold" : null} />
+            <T variant="label" className={`text-[11px] ${state && holds[i] ? "text-game-gold" : "text-ink"}`}>
               {state ? (holds[i] ? "Held" : "Tap") : " "}
             </T>
           </Pressable>
         ))}
       </View>
-      <T variant="label" className="text-center" accessibilityLiveRegion="polite">
+      <T variant="body" className="text-soft text-center" accessibilityLiveRegion="polite">
         {finished
-          ? `${finished.label} · ${formatMultiplier(VIDEO_POKER_PAYTABLE[finished.category])}`
+          ? `${finished.label}, pays ${formatMultiplier(VIDEO_POKER_PAYTABLE[finished.category])}`
           : category
             ? `Dealt: ${POKER_LABELS[category]}`
-            : "Jacks or Better · 9/6"}
+            : "Jacks or Better, 9/6 pay table"}
       </T>
     </View>
   );
