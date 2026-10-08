@@ -2,8 +2,8 @@ import type { BottomTabBarProps } from "expo-router/js-tabs";
 import { BarChart3, History, House, Settings2, ShieldCheck, type LucideIcon } from "lucide-react-native";
 import { Pressable, View, LayoutChangeEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { useAnimatedStyle, withTiming } from "react-native-reanimated";
-import { useState } from "react";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { useEffect, useState } from "react";
 
 import { C } from "@/config/theme";
 import { haptic } from "@/utils/feedback";
@@ -12,16 +12,26 @@ const ICONS: Record<string, LucideIcon> = { index: House, history: History, fair
 
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const [tabWidth, setTabWidth] = useState(0);
+  
+  // Use React state to conditionally render the pill only after layout
+  const [ready, setReady] = useState(false);
+  
+  // Use Reanimated shared values for safe UI thread animations
+  const tabWidth = useSharedValue(0);
+  const activeIndex = useSharedValue(state.index);
+
+  useEffect(() => {
+    activeIndex.value = state.index;
+  }, [state.index, activeIndex]);
 
   const animatedStyle = useAnimatedStyle(() => {
-    const offset = (tabWidth - 48) / 2;
+    const offset = (tabWidth.value - 48) / 2;
     return {
       transform: [
-        { translateX: withTiming(state.index * tabWidth + offset, { duration: 150 }) }
+        { translateX: withTiming(activeIndex.value * tabWidth.value + offset, { duration: 150 }) }
       ]
     };
-  }, [state.index, tabWidth]);
+  });
 
   return (
     <View 
@@ -43,9 +53,12 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           height: 64, 
           shadowColor: "#000", shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.08, shadowRadius: 16, elevation: 10 
         }}
-        onLayout={(e: LayoutChangeEvent) => setTabWidth(e.nativeEvent.layout.width / state.routes.length)}
+        onLayout={(e: LayoutChangeEvent) => {
+          tabWidth.value = e.nativeEvent.layout.width / state.routes.length;
+          setReady(true);
+        }}
       >
-        {tabWidth > 0 && (
+        {ready && (
           <Animated.View 
             className="absolute h-12 w-12 rounded-full" 
             style={[{ top: 8, left: 0, backgroundColor: "#8a2be2", shadowColor: "#8a2be2", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 8 }, animatedStyle]} 

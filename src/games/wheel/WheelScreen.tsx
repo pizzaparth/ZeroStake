@@ -76,7 +76,7 @@ export default function WheelScreen() {
       return finish(row);
     }
     setSpinning(true);
-    rotation.value = withTiming(target, { duration: 1700, easing: Easing.bezier(0.12, 0.8, 0.2, 1) }, (done) => {
+    rotation.value = withTiming(target, { duration: 4000, easing: Easing.bezier(0.12, 0.8, 0.2, 1) }, (done) => {
       if (done) scheduleOnRN(finish, row);
     });
   };

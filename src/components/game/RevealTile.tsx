@@ -41,8 +41,8 @@ export function RevealTile({
       flip.set(target);
       return;
     }
-    flip.set(withTiming(target, { duration: face.startsWith("ghost") ? 120 : 170 }));
-    if (face === "good" || face === "bad") pop.set(withSequence(withTiming(1.1, { duration: 80 }), withSpring(1, MOTION.spring)));
+    flip.set(withTiming(target, { duration: face.startsWith("ghost") ? 150 : 350 }));
+    if (face === "good" || face === "bad") pop.set(withSequence(withTiming(1.1, { duration: 150 }), withSpring(1, MOTION.spring)));
   }, [face, animations, flip, pop]);
 
   const front = useAnimatedStyle(() => ({
@@ -69,10 +69,10 @@ export function RevealTile({
       className={aspectClass}
     >
       <View className="flex-1">
-        {face === "hidden" ? <View className="absolute bottom-0 left-0 right-0 top-[3px] rounded-xl bg-game-board" /> : null}
-        <Animated.View className="absolute bottom-[3px] left-0 right-0 top-0 rounded-xl bg-game-tile-raised" style={front} />
+        {face === "hidden" ? <View className="absolute bottom-0 left-0 right-0 top-[3px] rounded-[18px] bg-game-tile" /> : null}
+        <Animated.View className="absolute bottom-[3px] left-0 right-0 top-0 rounded-[18px] bg-game-tile-raised shadow-sm border border-line" style={front} />
         <Animated.View
-          className="absolute inset-0 items-center justify-center rounded-xl"
+          className="absolute inset-0 items-center justify-center rounded-[18px]"
           style={[back, { backgroundColor: backColor, opacity: ghost ? 0.6 : 1 }]}
         >
           {revealedGood ? good : bad}

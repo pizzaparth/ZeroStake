@@ -1,7 +1,7 @@
 import type { SeedInput } from "@/engine/rng/types";
 
 export type GameId =
-  "dice" | "limbo" | "mines" | "dragonTower" | "wheel" | "flip" | "keno" | "plinko" | "hilo" | "crash" | "blackjack" | "videoPoker" | "diamonds";
+  "dice" | "limbo" | "mines" | "dragonTower" | "wheel" | "flip" | "keno" | "plinko" | "hilo" | "crash" | "blackjack";
 
 /** Plain JSON values only: params, actions and outcomes are stored in SQLite as JSON. */
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };

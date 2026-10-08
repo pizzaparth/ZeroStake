@@ -20,20 +20,20 @@ export const C = {
 } as const;
 
 export const B = {
-  board: "#1b1a18",
-  tile: "#2c2a27",
-  tileRaised: "#3a3733",
-  well: "#242220",
-  ink: "#f5f1ea",
-  soft: "#b5ada3",
-  win: "#22d69a",
-  loss: "#ff4d5e",
-  gold: "#ffc21a",
-  sky: "#4c8dff",
-  violet: "#a77bff",
-  orange: "#ff8a3d",
-  winTint: "#173a2e",
-  lossTint: "#43181f",
+  board: "#ffffff",
+  tile: "#f0f0f5",
+  tileRaised: "#ffffff",
+  well: "#f8f8fb",
+  ink: "#111113",
+  soft: "#8e8e93",
+  win: "#34c759",
+  loss: "#ff3b30",
+  gold: "#ffcc00",
+  sky: "#5ac8fa",
+  violet: "#af52de",
+  orange: "#ff9500",
+  winTint: "#e8f7ee",
+  lossTint: "#ffebe9",
 } as const;
 
 export type ChipColor = "red" | "blue" | "gold" | "mint";

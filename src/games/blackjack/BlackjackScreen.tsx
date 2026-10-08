@@ -38,7 +38,7 @@ function Hand({
 }) {
   const visible = hideSecond ? cards.slice(0, 1) : cards;
   return (
-    <View className={`items-center gap-2 rounded-xl p-2 ${active ? "border-2 border-game-gold" : "border-2 border-transparent"}`}>
+    <View className={`items-center gap-2 rounded-[18px] p-2 ${active ? "border-2 border-game-gold" : "border-2 border-transparent"}`}>
       <View className="flex-row items-center gap-2">
         <T variant="label" className="text-[12px]">
           {label}

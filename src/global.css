@@ -31,15 +31,15 @@
   --color-pos: #0a7d55;
   --color-neg: #cf2438;
 
-  /* Game-board colours (boards are always dark) */
-  --color-game-board: #1b1a18;
-  --color-game-tile: #2c2a27;
-  --color-game-tile-raised: #3a3733;
-  --color-game-win: #22d69a;
-  --color-game-loss: #ff4d5e;
-  --color-game-gold: #ffc21a;
-  --color-game-sky: #4c8dff;
-  --color-game-violet: #a77bff;
+  /* Game-board colours (light GenZ aesthetic) */
+  --color-game-board: #ffffff;
+  --color-game-tile: #f0f0f5;
+  --color-game-tile-raised: #ffffff;
+  --color-game-win: #34c759;
+  --color-game-loss: #ff3b30;
+  --color-game-gold: #ffcc00;
+  --color-game-sky: #5ac8fa;
+  --color-game-violet: #af52de;
 }
 
 /* Theme-dependent app tokens */
@@ -106,50 +106,50 @@
     }
 
     @variant dark {
-      --zs-page: #1b1a18;
-      --zs-surface: #2c2a27;
-      --zs-surface-2: #3a3733;
-      --zs-well: #242220;
-      --zs-line: #3a3733;
-      --zs-ink: #f5f1ea;
-      --zs-soft: #b5ada3;
-      --zs-primary: #f5f1ea;
-      --zs-on-primary: #141312;
+      --zs-page: #140c1a;
+      --zs-surface: #271833;
+      --zs-surface-2: #39244a;
+      --zs-well: #1c1124;
+      --zs-line: #39244a;
+      --zs-ink: #fdf2f8;
+      --zs-soft: #a898b5;
+      --zs-primary: #8a2be2;
+      --zs-on-primary: #ffffff;
 
-      --background: #1b1a18;
-      --foreground: #f5f1ea;
-      --surface: #2c2a27;
-      --surface-foreground: #f5f1ea;
-      --surface-secondary: #3a3733;
-      --surface-secondary-foreground: #f5f1ea;
-      --surface-tertiary: #242220;
-      --surface-tertiary-foreground: #f5f1ea;
-      --overlay: #2c2a27;
-      --overlay-foreground: #f5f1ea;
-      --backdrop: rgba(0, 0, 0, 0.6);
-      --muted: #b5ada3;
-      --default: #3a3733;
-      --default-foreground: #f5f1ea;
-      --accent: #f5f1ea;
-      --accent-foreground: #141312;
-      --field-background: #242220;
-      --field-foreground: #f5f1ea;
-      --field-placeholder: #8f887f;
-      --field-border: #3a3733;
-      --success: #22d69a;
-      --success-foreground: #141312;
-      --warning: #ffc21a;
-      --warning-foreground: #141312;
-      --danger: #ff4d5e;
-      --danger-foreground: #141312;
-      --segment: #f5f1ea;
-      --segment-foreground: #141312;
-      --border: #3a3733;
-      --separator: #3a3733;
-      --focus: #f5f1ea;
-      --link: #f5f1ea;
+      --background: #140c1a;
+      --foreground: #fdf2f8;
+      --surface: #271833;
+      --surface-foreground: #fdf2f8;
+      --surface-secondary: #39244a;
+      --surface-secondary-foreground: #fdf2f8;
+      --surface-tertiary: #1c1124;
+      --surface-tertiary-foreground: #fdf2f8;
+      --overlay: #271833;
+      --overlay-foreground: #fdf2f8;
+      --backdrop: rgba(20, 12, 26, 0.6);
+      --muted: #a898b5;
+      --default: #39244a;
+      --default-foreground: #fdf2f8;
+      --accent: #8a2be2;
+      --accent-foreground: #ffffff;
+      --field-background: #1c1124;
+      --field-foreground: #fdf2f8;
+      --field-placeholder: #a898b5;
+      --field-border: #39244a;
+      --success: #34c759;
+      --success-foreground: #ffffff;
+      --warning: #f4d03f;
+      --warning-foreground: #140c1a;
+      --danger: #ff3b30;
+      --danger-foreground: #ffffff;
+      --segment: #39244a;
+      --segment-foreground: #fdf2f8;
+      --border: #39244a;
+      --separator: #39244a;
+      --focus: #8a2be2;
+      --link: #8a2be2;
       --surface-shadow: 0 0 0 0 transparent inset;
-      --overlay-shadow: 0 0 0 1px #3a3733 inset;
+      --overlay-shadow: 0 0 0 1px #39244a inset;
       --field-shadow: 0 0 0 0 transparent inset;
     }
   }

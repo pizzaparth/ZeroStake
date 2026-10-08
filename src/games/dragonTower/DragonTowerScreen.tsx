@@ -75,7 +75,7 @@ export default function DragonTowerScreen() {
         {Array.from({ length: DRAGON_TOWER_ROWS }, (_, i) => DRAGON_TOWER_ROWS - 1 - i).map((row) => (
           <View
             key={row}
-            className={`flex-1 flex-row items-stretch gap-1.5 rounded-xl p-0.5 ${row === currentRow ? "border-2 border-game-gold" : "border-2 border-transparent"}`}
+            className={`flex-1 flex-row items-stretch gap-1.5 rounded-[18px] p-0.5 ${row === currentRow ? "bg-[#fff2cc] border border-[#ffcc00] shadow-sm shadow-[#ffcc00]/30" : "border border-transparent"}`}
           >
             <View className="w-14 justify-center">
               <T variant="numSm" className={`text-[12px] ${row < cleared ? "text-game-win" : "text-ink"}`}>

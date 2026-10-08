@@ -3,7 +3,7 @@ import { cardLabel } from "@/engine/cards/deck";
 import { formatMultiplier } from "@/engine/wallet/money";
 import { blackjackGame, type BlackjackOutcome } from "./blackjack/engine";
 import { crashGame, type CrashOutcome } from "./crash/engine";
-import { diamondsGame, diamondsRtp, type DiamondsOutcome } from "./diamonds/engine";
+
 import { diceGame, type DiceOutcome } from "./dice/engine";
 import { dragonTowerGame, type DragonTowerOutcome } from "./dragonTower/engine";
 import { flipGame, type FlipOutcome } from "./flip/engine";
@@ -13,7 +13,7 @@ import { limboGame, type LimboOutcome } from "./limbo/engine";
 import { minesGame, type MinesOutcome } from "./mines/engine";
 import { plinkoGame, type PlinkoOutcome } from "./plinko/engine";
 import type { AnyGameEngine, GameId } from "./types";
-import { videoPokerGame, VIDEO_POKER_OPTIMAL_RTP, type VideoPokerOutcome } from "./videoPoker/engine";
+
 import { wheelGame, wheelRtp, wheelRing, type WheelOutcome } from "./wheel/engine";
 
 export interface GameInfo {
@@ -199,34 +199,6 @@ export const GAMES: GameMeta[] = [
     },
     describe: (o) => `${o.hands.map((h) => h.result).join(" / ")} · dealer ${o.dealer.map(cardLabel).join(" ")}`,
   }),
-  def<VideoPokerOutcome>({
-    id: "videoPoker",
-    name: "Video Poker",
-    tagline: "Jacks or Better",
-    engine: videoPokerGame,
-    info: {
-      howToPlay: "You get five cards. Hold the ones you want, draw replacements, and get paid by the final hand (Jacks or Better, 9/6).",
-      rtp: [0, VIDEO_POKER_OPTIMAL_RTP],
-      rtpNote: "99.54% with perfect strategy; poorer holds return less.",
-      probabilityModel: "One freshly shuffled 52-card deck per round. Replacements come from cards 6, 7, 8… in order.",
-      rngUsage: "Cursors 0–50 → Fisher–Yates shuffle.",
-    },
-    describe: (o) => `${o.label} · ${o.final.map(cardLabel).join(" ")}`,
-  }),
-  def<DiamondsOutcome>({
-    id: "diamonds",
-    name: "Diamonds",
-    tagline: "Pick 4 of 12",
-    engine: diamondsGame,
-    info: {
-      howToPlay: "Three diamonds hide among 12 tiles. Pick 4 tiles; you are paid by how many diamonds you find (0.4× / 2× / 18×).",
-      rtp: diamondsRtp(),
-      rtpNote: "Classic table preserved from the source game.",
-      probabilityModel: "P(h) = C(3, h)·C(9, 4 − h) ÷ C(12, 4).",
-      rngUsage: "Cursors 0–2 → partial Fisher–Yates placement of 3 diamonds.",
-    },
-    describe: (o) => `${o.hits} of 3 diamonds`,
-  }),
 ];
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g])) as Record<GameId, GameMeta>;
@@ -237,12 +209,10 @@ export function getGame(id: string): GameMeta | undefined {
 
 export function formatRtp(rtp: GameInfo["rtp"]): string {
   const pct = (v: number) => `${(v * 100).toFixed(2)}%`;
-  if (Array.isArray(rtp)) return rtp[0] === 0 ? `up to ${pct(rtp[1])}` : `${pct(rtp[0])}–${pct(rtp[1])}`;
-  return pct(rtp);
+  return pct(Array.isArray(rtp) ? rtp[1] : rtp);
 }
 
 export function formatHouseEdge(rtp: GameInfo["rtp"]): string {
   const pct = (v: number) => `${((1 - v) * 100).toFixed(2)}%`;
-  if (Array.isArray(rtp)) return rtp[0] === 0 ? `from ${pct(rtp[1])}` : `${pct(rtp[1])}–${pct(rtp[0])}`;
-  return pct(rtp);
+  return pct(Array.isArray(rtp) ? rtp[1] : rtp);
 }

@@ -32,6 +32,14 @@ export default function BetDetail() {
   }
 
   const meta = GAME_BY_ID[bet.game];
+
+  if (!meta) {
+    return (
+      <View className="flex-1 items-center justify-center bg-page">
+        <T variant="heading">Game no longer available</T>
+      </View>
+    );
+  }
   const profit = bet.payout - bet.totalBet;
   const seeds = bet.serverSeed ? { serverSeed: bet.serverSeed, clientSeed: bet.clientSeed, nonce: bet.nonce } : null;
 

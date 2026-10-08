@@ -20,7 +20,7 @@ import type { PlinkoOutcome } from "./engine";
 import { PLINKO_ROW_OPTIONS, plinkoTable, type PlinkoRisk, type PlinkoRows } from "./payouts";
 
 const game = GAME_BY_ID.plinko;
-const STEP_MS = 65;
+const STEP_MS = 180;
 const MAX_BALLS = 12;
 
 interface Geometry {
@@ -95,7 +95,7 @@ function Bucket({ m, color, hits }: { m: number; color: string; hits: number }) 
   }, [hits, drop]);
   const style = useAnimatedStyle(() => ({ transform: [{ translateY: drop.value }] }));
   return (
-    <Animated.View className="flex-1 items-center justify-center rounded-lg py-1.5" style={[{ backgroundColor: color }, style]}>
+    <Animated.View className="flex-1 items-center justify-center rounded-[14px] py-1.5" style={[{ backgroundColor: color }, style]}>
       <T variant="numSm" className="text-[8px] text-inv" numberOfLines={1} adjustsFontSizeToFit>
         {m >= 100 ? Math.round(m) : m}
       </T>

@@ -29,8 +29,6 @@ export const GAME_ICONS: Record<GameId, LucideIcon> = {
   hilo: ArrowUpDown,
   crash: Rocket,
   blackjack: Spade,
-  videoPoker: Club,
-  diamonds: Gem,
 };
 
 export function GameIcon({ id, size = 22, color = "#fff6e8" }: { id: GameId; size?: number; color?: string }) {
@@ -50,7 +48,5 @@ export const GAME_CHIP: Record<GameId, import("@/config/theme").ChipColor> = {
   wheel: "gold",
   hilo: "red",
   blackjack: "blue",
-  videoPoker: "gold",
-  diamonds: "mint",
   flip: "red",
 };

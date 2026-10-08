@@ -2,7 +2,6 @@ import type { ComponentType } from "react";
 
 import BlackjackScreen from "./blackjack/BlackjackScreen";
 import CrashScreen from "./crash/CrashScreen";
-import DiamondsScreen from "./diamonds/DiamondsScreen";
 import DiceScreen from "./dice/DiceScreen";
 import DragonTowerScreen from "./dragonTower/DragonTowerScreen";
 import FlipScreen from "./flip/FlipScreen";
@@ -12,7 +11,6 @@ import LimboScreen from "./limbo/LimboScreen";
 import MinesScreen from "./mines/MinesScreen";
 import PlinkoScreen from "./plinko/PlinkoScreen";
 import type { GameId } from "./types";
-import VideoPokerScreen from "./videoPoker/VideoPokerScreen";
 import WheelScreen from "./wheel/WheelScreen";
 
 /** UI layer for each game; engines live next to them in engine.ts. */
@@ -28,6 +26,4 @@ export const GAME_SCREENS: Record<GameId, ComponentType> = {
   crash: CrashScreen,
   hilo: HiloScreen,
   blackjack: BlackjackScreen,
-  videoPoker: VideoPokerScreen,
-  diamonds: DiamondsScreen,
 };

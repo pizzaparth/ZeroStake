@@ -3,7 +3,6 @@ import { ChevronLeft, Info } from "lucide-react-native";
 import { useState, type ReactNode } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ScopedTheme } from "uniwind";
 
 import { C } from "@/config/theme";
 import type { GameMeta } from "@/games/registry";
@@ -30,17 +29,12 @@ function RoundButton({ label, onPress, children }: { label: string; onPress: () 
 
 export interface GameShellProps {
   game: GameMeta;
-  /** The game board. Rendered in the dark board theme. */
+  /** The game board. */
   board: ReactNode;
   /** Bet controls + primary action, on the white panel under the board. */
   controls: ReactNode;
 }
 
-/**
- * Shared frame for every game: white header, a dark rounded board inset
- * (where the game's colour lives), and the controls below. The header is
- * stacked above the board so the balance-change pill is never hidden.
- */
 export function GameShell({ game, board, controls }: GameShellProps) {
   const insets = useSafeAreaInsets();
   const [info, setInfo] = useState(false);
@@ -48,47 +42,56 @@ export function GameShell({ game, board, controls }: GameShellProps) {
   const showRng = useAppStore((s) => s.settings.showRngDetails);
 
   return (
-    <View className="flex-1 bg-page" style={{ paddingTop: insets.top }}>
-      <View className="flex-row items-center gap-3 bg-page px-4 pb-3 pt-1" style={{ zIndex: 20, elevation: 20 }}>
-        <RoundButton label="Back" onPress={() => requestAnimationFrame(() => router.canGoBack() ? router.back() : router.replace("/"))}>
-          <ChevronLeft size={22} color={C.ink} />
-        </RoundButton>
-        <T
-          variant="heading"
-          accessibilityRole="header"
-          className="flex-1 text-[20px] leading-[26px]"
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.8}
-        >
-          {game.name}
-        </T>
-        <BalanceDisplay />
-        <RoundButton label={`How ${game.name} works`} onPress={() => setInfo(true)}>
-          <Info size={19} color={C.ink} />
-        </RoundButton>
-      </View>
-
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} className="flex-1">
-        <ScopedTheme theme="dark">
-          <View className="mx-3 flex-1 overflow-hidden rounded-3xl bg-game-board">{board}</View>
-        </ScopedTheme>
-        {showRng && commitment ? (
-          <View className="flex-row justify-between gap-2 px-5 pt-2">
-            <T variant="numSm">Nonce {commitment.nonce}</T>
-            <T variant="numSm" numberOfLines={1} className="flex-1 text-center">
-              Client {commitment.clientSeed.slice(0, 10)}
-            </T>
-            <T variant="numSm">Hash {commitment.serverSeedHash.slice(0, 8)}</T>
-          </View>
-        ) : null}
+    <View className="flex-1 bg-page">
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"} 
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
+        className="flex-1"
+      >
         <ScrollView
-          className="max-h-[52%] grow-0"
-          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: insets.bottom + 12, gap: 14 }}
+          className="flex-1"
+          contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top || 16, paddingBottom: insets.bottom + 24 }}
           keyboardShouldPersistTaps="handled"
-          bounces={false}
+          bounces={true}
+          automaticallyAdjustKeyboardInsets={true}
         >
-          {controls}
+          <View className="flex-row items-center gap-3 px-4 pb-4 pt-1">
+            <RoundButton label="Back" onPress={() => requestAnimationFrame(() => router.canGoBack() ? router.back() : router.replace("/"))}>
+              <ChevronLeft size={22} color={C.ink} />
+            </RoundButton>
+            <T
+              variant="heading"
+              accessibilityRole="header"
+              className="flex-1 text-[20px]"
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
+            >
+              {game.name}
+            </T>
+            <BalanceDisplay />
+            <RoundButton label={`How ${game.name} works`} onPress={() => setInfo(true)}>
+              <Info size={19} color={C.ink} />
+            </RoundButton>
+          </View>
+
+          <View className="flex-1 w-full" style={{ minHeight: 400 }}>
+            {board}
+          </View>
+
+          {showRng && commitment ? (
+            <View className="flex-row justify-between gap-2 px-6 pt-3">
+              <T variant="numSm">Nonce {commitment.nonce}</T>
+              <T variant="numSm" numberOfLines={1} className="flex-1 text-center">
+                Client {commitment.clientSeed.slice(0, 10)}
+              </T>
+              <T variant="numSm">Hash {commitment.serverSeedHash.slice(0, 8)}</T>
+            </View>
+          ) : null}
+
+          <View className="px-5 pt-5 gap-4 pb-2 justify-end">
+            {controls}
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
 

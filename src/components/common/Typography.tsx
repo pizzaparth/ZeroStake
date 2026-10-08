@@ -7,16 +7,16 @@ import { cn } from "heroui-native/utils";
  * Colours come from theme tokens, so text adapts inside dark game boards.
  */
 const VARIANTS = {
-  display: "font-display text-[40px] leading-[44px] tracking-tight",
-  title: "font-display text-[28px] leading-[34px] tracking-tight",
-  heading: "font-display-semi text-[17px] leading-[22px]",
-  body: "font-body text-[15px] leading-[21px]",
-  small: "font-body text-[13px] leading-[18px]",
-  label: "font-body-bold text-[12px] leading-[16px]",
-  num: "font-num text-[15px] leading-[20px]",
-  numSm: "font-num text-[12px] leading-[16px]",
-  numLg: "font-display text-[26px] leading-[32px] tracking-tight",
-  numXl: "font-display text-[56px] leading-[62px] tracking-tight",
+  display: "font-display text-[48px] leading-[52px] tracking-tight",
+  title: "font-display text-[32px] leading-[38px] tracking-tight",
+  heading: "font-display-semi text-[20px] leading-[26px]",
+  body: "font-body text-[17px] leading-[24px]",
+  small: "font-body text-[15px] leading-[20px]",
+  label: "font-body-bold text-[14px] leading-[18px]",
+  num: "font-num text-[17px] leading-[22px]",
+  numSm: "font-num text-[14px] leading-[18px]",
+  numLg: "font-display text-[30px] leading-[36px] tracking-tight",
+  numXl: "font-display text-[64px] leading-[70px] tracking-tight",
 } as const;
 
 /** Variants that default to the secondary text colour. */

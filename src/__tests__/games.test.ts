@@ -2,7 +2,6 @@ import { combinations } from "@/engine/probability/combinatorics";
 import type { SeedInput } from "@/engine/rng/types";
 import { blackjackGame, extraUnitsFor, type BlackjackState } from "@/games/blackjack/engine";
 import { crashGame, crashPointFromFloat, resolveAbandonedCrash } from "@/games/crash/engine";
-import { diamondsGame, diamondsRtp } from "@/games/diamonds/engine";
 import { diceGame, diceMultiplier, diceTargetForChance, diceWinChance } from "@/games/dice/engine";
 import { DRAGON_TOWER_DIFFICULTIES, dragonTowerGame, dragonTowerMultiplier } from "@/games/dragonTower/engine";
 import { flipGame, flipMultiplier } from "@/games/flip/engine";
@@ -16,7 +15,6 @@ import { PLINKO_ROW_OPTIONS, plinkoBucketProbabilities, plinkoTable, type Plinko
 import { GAMES } from "@/games/registry";
 import { replayRound, type Json, type RoundGame } from "@/games/types";
 import { verifyBet } from "@/games/verify";
-import { videoPokerGame } from "@/games/videoPoker/engine";
 import { wheelGame, wheelRtp } from "@/games/wheel/engine";
 import { hashServerSeed } from "@/engine/rng/provablyFair";
 
@@ -31,7 +29,6 @@ describe("determinism: same RNG input → same result", () => {
     ["flip", flipGame, { side: "heads", streak: 3 }],
     ["keno", kenoGame, { picks: [1, 5, 9, 13, 40] }],
     ["plinko", plinkoGame, { rows: 16, risk: "high" }],
-    ["diamonds", diamondsGame, { picks: [0, 3, 6, 9] }],
   ];
   test.each(instant)("%s", (_name, game, params) => {
     for (let n = 0; n < 25; n++) {
@@ -44,7 +41,6 @@ describe("determinism: same RNG input → same result", () => {
     expect(dragonTowerGame.start(seedsFor(3), { difficulty: "master" })).toEqual(dragonTowerGame.start(seedsFor(3), { difficulty: "master" }));
     expect(hiloGame.start(seedsFor(3), {})).toEqual(hiloGame.start(seedsFor(3), {}));
     expect(blackjackGame.start(seedsFor(3), {})).toEqual(blackjackGame.start(seedsFor(3), {}));
-    expect(videoPokerGame.start(seedsFor(3), {})).toEqual(videoPokerGame.start(seedsFor(3), {}));
     expect(crashGame.start(seedsFor(3), { autoCashout: null })).toEqual(crashGame.start(seedsFor(3), { autoCashout: null }));
   });
 });
@@ -202,7 +198,6 @@ describe("Wheel and Diamonds keep their classic RTP", () => {
     expect(wheelRtp("medium")).toBeCloseTo(0.96, 10);
     expect(wheelRtp("high")).toBeCloseTo(0.97, 10);
   });
-  test("diamonds", () => expect(diamondsRtp()).toBeCloseTo(0.9673, 3));
 });
 
 describe("Hilo", () => {

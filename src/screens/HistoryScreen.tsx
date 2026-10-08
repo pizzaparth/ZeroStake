@@ -55,6 +55,7 @@ export function BetListRow({ bet }: { bet: BetRow }) {
   const result = resultFor(bet.totalBet, bet.payout);
   const profit = bet.payout - bet.totalBet;
   const meta = GAME_BY_ID[bet.game];
+  if (!meta) return null;
   const chip = CHIPS[GAME_CHIP[bet.game]];
   const tone = result === "win" ? "text-pos" : result === "loss" ? "text-neg" : "text-soft";
   return (

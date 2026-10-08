@@ -51,7 +51,7 @@ export default function DiceScreen() {
     setRolling(true);
     // One quick slide with a slight overshoot; the roll was decided before it starts.
     puck.set(
-      withTiming(outcome.roll, { duration: 300, easing: Easing.out(Easing.back(1.4)) }, (done) => {
+      withTiming(outcome.roll, { duration: 1200, easing: Easing.out(Easing.back(1.1)) }, (done) => {
         if (done) scheduleOnRN(finish, row);
       }),
     );

@@ -17,7 +17,7 @@ import type { KenoOutcome } from "./engine";
 import { KENO_MAX_PICKS, KENO_TABLES, KENO_TILES } from "./payouts";
 
 const game = GAME_BY_ID.keno;
-const DRAW_MS = 55;
+const DRAW_MS = 300;
 
 /** Random picks for convenience only — they don't influence the draw, which comes from the seeds. */
 function randomPicks(count: number): number[] {
@@ -97,7 +97,7 @@ export default function KenoScreen() {
               onPress={() => toggle(n)}
               className="aspect-square w-[11.8%]"
             >
-              <View className={`flex-1 items-center justify-center rounded-xl ${bg}`}>
+              <View className={`flex-1 items-center justify-center rounded-[18px] ${bg}`}>
                 {isDrawn ? (
                   <Animated.View entering={animations ? ZoomIn.duration(120) : undefined}>
                     <T variant="num" className={`font-body-bold ${hit ? "text-inv" : "text-game-loss"}`}>
@@ -117,7 +117,7 @@ export default function KenoScreen() {
       {picks.length ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-1">
           {table.map((m, h) => (
-            <View key={h} className={`min-w-12 items-center rounded-lg px-1.5 py-1 ${row && h === hits ? "bg-game-gold" : "bg-game-tile"}`}>
+            <View key={h} className={`min-w-12 items-center rounded-[14px] px-1.5 py-1 ${row && h === hits ? "bg-game-gold" : "bg-game-tile"}`}>
               <T variant="numSm" className={`text-[12px] ${row && h === hits ? "text-inv" : "text-ink"}`}>
                 {formatMultiplier(m)}
               </T>

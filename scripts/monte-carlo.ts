@@ -15,7 +15,6 @@ import { generateServerSeed } from "../src/engine/rng/seeds";
 import type { SeedInput } from "../src/engine/rng/types";
 import { blackjackGame, canDouble, canSplit, type BlackjackAction, type BlackjackState } from "../src/games/blackjack/engine";
 import { crashGame } from "../src/games/crash/engine";
-import { diamondsGame, diamondsRtp } from "../src/games/diamonds/engine";
 import { diceGame } from "../src/games/dice/engine";
 import { dragonTowerGame } from "../src/games/dragonTower/engine";
 import { flipGame } from "../src/games/flip/engine";
@@ -68,7 +67,6 @@ report("Wheel high/30", wheelRtp("high"), instant(wheelGame, { segments: 30 as c
 report("Keno 5 picks", 0.99, instant(kenoGame, { picks: [3, 11, 19, 27, 35] }));
 report("Plinko medium/12", 0.99, instant(plinkoGame, { rows: 12 as const, risk: "medium" as const }));
 report("Plinko high/16", 0.99, instant(plinkoGame, { rows: 16 as const, risk: "high" as const }));
-report("Diamonds", diamondsRtp(), instant(diamondsGame, { picks: [0, 4, 8, 11] }));
 
 report("Crash cash-out 2×", 0.99, (n) => {
   const s = crashGame.start(seeds(n), { autoCashout: 2 });

@@ -41,7 +41,7 @@ export default function StatisticsScreen() {
   const { overall, perGame } = useLiveQuery(readStats);
   const series = useLiveQuery(() => readProfitSeries(200));
   const net = overall.returned - overall.wagered;
-  const favourite = perGame[0]?.game ? GAME_BY_ID[perGame[0].game].name : "None yet";
+  const favourite = perGame[0]?.game ? (GAME_BY_ID[perGame[0].game]?.name ?? "Unknown Game") : "None yet";
   const up = net >= 0;
 
   return (
@@ -69,7 +69,7 @@ export default function StatisticsScreen() {
         />
         <StatTile label="Biggest win" value={overall.highestWin > 0 ? formatCoins(overall.highestWin) : "None yet"} />
         <StatTile label="Best multiplier" value={overall.highestMultiplier > 0 ? formatMultiplier(overall.highestMultiplier) : "None yet"} />
-        <StatTile label="Favourite game" value={favourite} sub={`${perGame.length} of 13 games played`} />
+        <StatTile label="Favourite game" value={favourite} sub={`${perGame.length} of 11 games played`} />
       </View>
 
       <Section title="By game">

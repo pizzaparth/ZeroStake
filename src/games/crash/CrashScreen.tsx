@@ -171,7 +171,7 @@ export default function CrashScreen() {
       <View className="flex-1 mx-3 mb-3" onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
         {size.w > 0 && (
           <Canvas style={{ width: size.w, height: size.h }}>
-            <Path path={fill} color={crashed ? (won ? B.winTint : B.lossTint) : "#3a3020"} />
+            <Path path={fill} color={crashed ? (won ? B.winTint : B.lossTint) : "#ffcc0033"} />
             <Path path={path} style="stroke" strokeWidth={4} strokeCap="round" color={crashed ? (won ? B.win : B.loss) : B.gold} />
           </Canvas>
         )}

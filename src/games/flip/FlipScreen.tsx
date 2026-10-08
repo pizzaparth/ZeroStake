@@ -16,7 +16,7 @@ import { playSound } from "@/utils/feedback";
 import { FLIP_MAX_STREAK, flipMultiplier, type CoinSide, type FlipOutcome } from "./engine";
 
 const game = GAME_BY_ID.flip;
-const FLIP_MS = 340;
+const FLIP_MS = 1200;
 
 function Coin({ turns }: { turns: { value: number } }) {
   // Even half-turns show heads, odd show tails.
