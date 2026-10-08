@@ -11,9 +11,9 @@ export default function TabsLayout() {
         headerShown: false,
         sceneStyle: { backgroundColor: C.page },
         animation: "none",
-        // Disabling freezeOnBlur to avoid jitter when switching tabs.
+        // Disabling freezeOnBlur and lazy to avoid jitter when switching tabs.
         freezeOnBlur: false,
-        lazy: true,
+        lazy: false,
       }}
     >
       <Tabs.Screen name="index" />

@@ -32,32 +32,34 @@ export function FirstLaunchNotice() {
   const updateSetting = useAppStore((s) => s.updateSetting);
 
   return (
-    <Animated.View
-      entering={FadeIn.duration(200)}
-      className="flex-1 justify-between bg-page px-6"
-      style={{ paddingTop: insets.top + 48, paddingBottom: insets.bottom + 20 }}
-    >
-      <View className="gap-8">
-        <View className="flex-row">
-          {(["red", "blue", "gold", "mint"] as const).map((c, i) => (
-            <View key={c} style={{ marginLeft: i === 0 ? 0 : -10 }}>
-              <ChipCoin size={52} color={c} />
-            </View>
-          ))}
+    <Animated.View entering={FadeIn.duration(200)} className="flex-1 bg-page">
+      <Animated.ScrollView
+        className="flex-1"
+        contentContainerStyle={{ flexGrow: 1, paddingTop: insets.top + 48, paddingBottom: insets.bottom + 20, paddingHorizontal: 24, justifyContent: "space-between" }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="gap-8 pb-8">
+          <View className="flex-row">
+            {(["red", "blue", "gold", "mint"] as const).map((c, i) => (
+              <View key={c} style={{ marginLeft: i === 0 ? 0 : -10 }}>
+                <ChipCoin size={52} color={c} />
+              </View>
+            ))}
+          </View>
+          <View className="gap-2">
+            <T variant="display">{APP_NAME}</T>
+            <T variant="body" className="text-soft">
+              {DISCLAIMER}
+            </T>
+          </View>
+          <View className="gap-5">
+            <Point icon={Sparkles} title="13 casino games" body="Dice, Mines, Plinko, Crash, Blackjack and more." />
+            <Point icon={ShieldCheck} title="Every result can be checked" body="Each round comes from seeds you can verify later." />
+            <Point icon={CloudOff} title="Fully offline" body="No account, no internet, no purchases." />
+          </View>
         </View>
-        <View className="gap-2">
-          <T variant="display">{APP_NAME}</T>
-          <T variant="body" className="text-soft">
-            {DISCLAIMER}
-          </T>
-        </View>
-        <View className="gap-5">
-          <Point icon={Sparkles} title="13 casino games" body="Dice, Mines, Plinko, Crash, Blackjack and more." />
-          <Point icon={ShieldCheck} title="Every result can be checked" body="Each round comes from seeds you can verify later." />
-          <Point icon={CloudOff} title="Fully offline" body="No account, no internet, no purchases." />
-        </View>
-      </View>
-      <Btn label={`Start with ${formatCoins(balance).replace(".00", "")} coins`} size="lg" onPress={() => updateSetting("acknowledged", true)} />
+        <Btn label={`Start with ${formatCoins(balance).replace(".00", "")} coins`} size="lg" onPress={() => updateSetting("acknowledged", true)} />
+      </Animated.ScrollView>
     </Animated.View>
   );
 }
