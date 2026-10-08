@@ -1,9 +1,30 @@
-<!-- BEGIN:nextjs-agent-rules -->
+This is ZeroSteak, an Expo / React Native app: an offline, play-money casino simulator. There is no backend. Read `docs/architecture.md` first.
 
-# This is NOT the Next.js you know
+## Expo has changed — do not trust your training data
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+Expo ships breaking changes every SDK release (this project is on SDK 57). Before touching an Expo, EAS or React Native API, read the versioned docs at `https://docs.expo.dev/versions/v57.0.0/` or the index at https://docs.expo.dev/llms.txt.
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+## Commands
 
-<!-- END:nextjs-agent-rules -->
+```bash
+npx expo install <package>  # always use this instead of npm install for native/Expo packages
+npx expo start
+npm test                    # engine unit tests
+npm run typecheck
+npm run lint
+npm run simulate -- 200000  # Monte Carlo RTP check
+npx expo-doctor
+```
+
+Run typecheck, lint and tests before calling a task done.
+
+## Project rules
+
+- Game math lives in `src/games/<id>/engine.ts` as pure functions. Never put outcome or probability logic in components.
+- All randomness for outcomes comes from `src/engine/rng`. Never use `Math.random()` for anything game-critical.
+- Set RTP in `src/config/rtp.ts`; don't hard-code 0.99 in games.
+- Money is integer cents (`src/engine/wallet/money.ts`).
+- Wallet changes go through `src/engine/wallet/transactions.ts`, so each step happens in one SQLite transaction.
+- Animations replay pre-computed outcomes. They never decide results.
+- App chrome is pure black/white (no greys). Colour is allowed only inside game boards (`--color-game-*`).
+- Routes live in `src/app/`. Never edit generated `ios/` or `android/` folders.

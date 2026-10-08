@@ -1,79 +1,50 @@
-# Steak
+# ZeroSteak
 
-> **Play money only. No real wagering, no real currency, no cash-out.** Steak is a social casino built purely for entertainment.
+> **Play money only.** ZeroSteak is an offline casino *simulator* for entertainment. Coins are fictional, have no monetary value, and can't be bought, withdrawn or redeemed.
 
-A play-money online game platform: 13 games, provably fair for account holders through a committed per-player seed pair, a custom HMAC-SHA256 RNG engine, and optional accounts with server-persisted balances, built on Next.js and Postgres.
+ZeroSteak has 13 games: Dice, Limbo, Mines, Dragon Tower, Wheel, Flip, Keno, Plinko, Hilo, Crash, Blackjack, Video Poker and Diamonds. Every result can be recomputed from its seeds (HMAC-SHA256), the theoretical RTP is calculated and shown, and history, stats and the wallet are stored in on-device SQLite. The app works fully offline and has no backend.
 
-**[Live demo](TODO: add after deploy)** · Register an account or just play as a guest — both work, see [How balance works](#how-balance-works) below.
+Built with Expo SDK 57, Expo Router, React Native, TypeScript, HeroUI Native + Uniwind, Reanimated 4, Skia, FlashList, expo-sqlite and Zustand.
 
-<!-- TODO: 2-4 screenshots here once deployed — lobby, a game in progress, bet history -->
-
-## What's here
-
-- **13 games**: Dice, Limbo, Wheel, Flip, Keno, Diamonds, Plinko, Mines, Hilo, Dragon Tower, Blackjack, Video Poker, Crash — each with its own HMAC-SHA256 outcome engine and unit-tested payout math.
-- **Provably fair, for account holders**: every result is `HMAC-SHA256(serverSeed, clientSeed:nonce:cursor)`, and the server commits to its seed before it can see anything it could grind against:
-  1. The server commits a *next* server seed (publishes its SHA256) at registration, before you've chosen anything.
-  2. You activate it with a client seed of your own, sending back the hash you were shown. The client seed must be new (the server rejects any it has seen), and the server never picks one for you.
-  3. Each bet takes the next nonce from that pair, and games that need several random numbers (a deck shuffle, a mine layout) draw them by cursor under that one nonce.
-  4. Rotating reveals the server seed, so every bet made on it can be recomputed and checked against the hash, and a new next seed is committed. Rounds still in progress are forfeited first, since revealing the seed would expose them.
-
-  Seeds and revealed pairs are under **Settings → Seed Pair**, and each bet's seed details are in `/history`. **Guest play isn't provably fair**: each guest bet gets a fresh server seed revealed with the result, so you can recompute it, but nothing was committed beforehand. Design and rejected shortcuts: [ADR-003](docs/architecture.md#adr-003-provably-fair-rng-hmac-sha256-seed-chain). Code: [`src/lib/seed-pair.ts`](src/lib/seed-pair.ts), [`src/lib/game-engine/`](src/lib/game-engine/).
-- **Real accounts, optional**: register and your balance, bet history, and game state persist server-side in Postgres. Skip it and play as a guest — balance lives in `localStorage` instead, same games, same math (but not provably fair, see above).
-- **Server-authoritative money for real accounts**: once you're logged in, the server — not the client — decides your balance. Every bet is a single atomic database transaction; a stateful game's secret data (mine positions, dealt cards, the crash point) lives server-side in a `GameRound` row instead of a client-visible blob, so it can't be read or tampered with mid-round — with one necessary exception: Crash still sends `crashPoint` to the client at round start, since its countdown runs as a local client-side animation. Details in [`docs/architecture.md`](docs/architecture.md).
-
-## Quick Start
+## Run it
 
 ```bash
-# Clone
-git clone https://github.com/csimms3/steak.git
-cd steak
-
-# Install dependencies
 npm install
-
-# Run the app
-npm run dev
+npx expo start          # then press i / a, or scan the QR code with Expo Go
 ```
 
-Open [http://localhost:3001](http://localhost:3001) and start playing immediately as a guest — no setup required.
-
-### Optional: real accounts (Postgres + auth)
-
-To register real accounts with a server-persisted balance:
+To build a development or release app without installing Xcode or Android Studio, use EAS:
 
 ```bash
-# Start local Postgres
-docker compose up -d
-
-# Point the app at it (copy the example, defaults already match docker-compose.yml)
-cp .env.example .env
-
-# Apply the schema
-npx prisma migrate dev
-
-npm run dev
+npx eas-cli@latest build --profile development --platform ios   # or android
 ```
 
-Now `/register` creates a real account and `/login` signs in — your balance, bet history, and in-progress games persist across devices and sessions.
+## Scripts
 
-## How balance works
+| Command | What it does |
+|---|---|
+| `npm test` | Unit tests for RNG, probability, wallet and all 13 engines |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | `expo lint` |
+| `npm run simulate -- 1000000` | Monte Carlo RTP check for every game (add a name filter, e.g. `-- 200000 plinko`) |
+| `npm run sounds` | Regenerates the synthesized sound effects in `assets/sounds` |
 
-Steak runs in two modes side by side, and every game page supports both without you noticing a difference in how the game itself plays:
+## Fairness
 
-| | Guest | Logged in |
-|---|---|---|
-| Balance lives in | `localStorage` | Postgres, via the server |
-| Who decides win/loss amounts | Client applies the server's computed profit | Server applies it atomically in the same request that resolves the bet |
-| Stateful game secrets (mine positions, etc.) | Client-visible base64 blob | Server-side `GameRound` row, referenced by an opaque token |
-| Bet history | Not tracked | `/history`, backed by `GameSession` rows |
-| Outcome seeds | Fresh server seed per bet, revealed with the result (recomputable, not provably fair) | Committed per-player seed pair, revealed on rotation (provably fair) |
+Each bet's float comes from `HMAC_SHA256(serverSeed, "clientSeed:nonce:cursor")`. The first 4 bytes are divided by 2³² to give a number in [0, 1).
 
-Guest mode is the zero-friction path — clone, run, play. Logging in switches every game route onto the server-authoritative path, no separate code path to learn as a player.
+- The server seed is committed by its SHA-256 hash before you play.
+- **Fairness → Rotate seeds** reveals the server seed so you can verify every bet made with it.
+- Tap any bet in History to see the replay and a VERIFIED ✓ or VERIFICATION FAILED result.
 
-## Documentation
+Both seeds live on the same device, so this is a *verifiable simulation*. It is not the trust model of an online casino.
 
-- [Requirements](docs/requirements.md) — original problem statement and v0.1.0 scope (historical)
-- [Architecture](docs/architecture.md) — current system design, data model, and ADRs
-- [Roadmap](docs/roadmap.md) — what's shipped, what's next
-- [Contributing](CONTRIBUTING.md)
+## Docs
+
+- [Architecture](docs/architecture.md)
+- [Migration audit](docs/migration-audit.md): what was reused from `csimms3/steak`, and which math bugs were fixed
 - [Changelog](CHANGELOG.md)
+
+## Branding
+
+The name lives in `src/config/app.ts` and `app.json`. The icon is generated by `scripts/generate-icons.mjs`.

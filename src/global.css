@@ -1,0 +1,112 @@
+@import "tailwindcss";
+@import "uniwind";
+@import "heroui-native/styles";
+
+/*
+ * ZeroSteak — AMOLED Swiss theme.
+ * App chrome uses ONLY pure black (#000) and pure white (#fff): no greys,
+ * no tints. Hierarchy comes from weight, size, case, rules and inversion
+ * (white block / black text) instead of shades. Games may use colour.
+ * Both variants are identical; the app forces dark.
+ */
+@theme {
+  --radius: 0px;
+  --border-width: 1px;
+  --field-border-width: 1px;
+  --field-radius: 0px;
+  --opacity-disabled: 1;
+
+  --font-mono: "JetBrainsMono_500Medium";
+  --font-mono-bold: "JetBrainsMono_700Bold";
+  --font-mono-light: "JetBrainsMono_300Light";
+
+  /* Game palette (used only inside game boards) */
+  --color-game-board: #0b0f14;
+  --color-game-tile: #18212b;
+  --color-game-tile-raised: #24303d;
+  --color-game-win: #2bff88;
+  --color-game-loss: #ff3d5a;
+  --color-game-gold: #ffc83d;
+  --color-game-sky: #49b8ff;
+  --color-game-violet: #9c6bff;
+}
+
+@layer theme {
+  :root {
+    @variant light {
+      --background: #000000;
+      --foreground: #ffffff;
+      --surface: #000000;
+      --surface-foreground: #ffffff;
+      --surface-secondary: #000000;
+      --surface-secondary-foreground: #ffffff;
+      --surface-tertiary: #000000;
+      --surface-tertiary-foreground: #ffffff;
+      --overlay: #000000;
+      --overlay-foreground: #ffffff;
+      --backdrop: rgba(0, 0, 0, 0.85);
+      --muted: #ffffff;
+      --default: #000000;
+      --default-foreground: #ffffff;
+      --accent: #ffffff;
+      --accent-foreground: #000000;
+      --field-background: #000000;
+      --field-foreground: #ffffff;
+      --field-placeholder: #ffffff;
+      --field-border: #ffffff;
+      --success: #ffffff;
+      --success-foreground: #000000;
+      --warning: #ffffff;
+      --warning-foreground: #000000;
+      --danger: #ffffff;
+      --danger-foreground: #000000;
+      --segment: #ffffff;
+      --segment-foreground: #000000;
+      --border: #ffffff;
+      --separator: #ffffff;
+      --focus: #ffffff;
+      --link: #ffffff;
+      --surface-shadow: 0 0 0 0 transparent inset;
+      --overlay-shadow: 0 0 0 1px #ffffff inset;
+      --field-shadow: 0 0 0 0 transparent inset;
+    }
+
+    @variant dark {
+      --background: #000000;
+      --foreground: #ffffff;
+      --surface: #000000;
+      --surface-foreground: #ffffff;
+      --surface-secondary: #000000;
+      --surface-secondary-foreground: #ffffff;
+      --surface-tertiary: #000000;
+      --surface-tertiary-foreground: #ffffff;
+      --overlay: #000000;
+      --overlay-foreground: #ffffff;
+      --backdrop: rgba(0, 0, 0, 0.85);
+      --muted: #ffffff;
+      --default: #000000;
+      --default-foreground: #ffffff;
+      --accent: #ffffff;
+      --accent-foreground: #000000;
+      --field-background: #000000;
+      --field-foreground: #ffffff;
+      --field-placeholder: #ffffff;
+      --field-border: #ffffff;
+      --success: #ffffff;
+      --success-foreground: #000000;
+      --warning: #ffffff;
+      --warning-foreground: #000000;
+      --danger: #ffffff;
+      --danger-foreground: #000000;
+      --segment: #ffffff;
+      --segment-foreground: #000000;
+      --border: #ffffff;
+      --separator: #ffffff;
+      --focus: #ffffff;
+      --link: #ffffff;
+      --surface-shadow: 0 0 0 0 transparent inset;
+      --overlay-shadow: 0 0 0 1px #ffffff inset;
+      --field-shadow: 0 0 0 0 transparent inset;
+    }
+  }
+}

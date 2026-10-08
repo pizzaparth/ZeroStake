@@ -7,6 +7,37 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [2.0.0] — ZeroSteak mobile (2026-10-08)
+
+The Next.js web app was rewritten as **ZeroSteak**, an offline Expo / React Native app for iOS and Android.
+
+### Changed
+- Next.js, Prisma/Postgres, next-auth and the API routes were replaced by on-device SQLite (`expo-sqlite`). Nothing touches the network.
+- The game engines were ported to pure `play` / `start`·`act`·`settle` functions that work on integer cents, so every bet can be replayed for verification.
+- The HMAC-SHA256 RNG is kept byte for byte. It now runs on `@noble/hashes`, with a parity test against the original Node implementation.
+- New UI: an AMOLED black/white Swiss design built on HeroUI Native and Uniwind, with Reanimated, Skia and SVG animations, synthesized sound effects and haptics.
+
+### Fixed (game math)
+- Plinko high/16 table was missing an entry (201% RTP), and high/12 returned 78%. All tables are now derived from binomial probabilities at 99%.
+- Keno returned 36–87% for 2–10 picks. Tables are now derived from hypergeometric probabilities at 99%.
+- Dice "roll over" probability was off by 0.01 percentage points.
+- Dragon Tower, Hilo and Flip compounded the house edge on every step. The edge is now applied once.
+- Hilo priced every guess as if 51 cards remained (exploitable). It now uses exact remaining-deck odds.
+- Blackjack gave the player an edge (100.21% simulated with basic strategy). The dealer now hits soft 17 (99.996% simulated).
+
+### Added
+- Dragon Tower "Master" difficulty.
+- Hilo "skip card".
+- Crash auto cash-out.
+- Plinko: drop several balls at once.
+- Fairness screen: seed rotation, revealed pairs and a manual verifier.
+- Per-bet VERIFIED ✓ or VERIFICATION FAILED view.
+- Statistics screen with a profit chart, plus a ledger view.
+- Settings: sound, haptics, reduce motion, compact numbers, reset amount, RNG details.
+- Monte Carlo validation script.
+
+## [1.x] — Steak web (pre-fork)
+
 ### Added
 - **Provably fair outcomes for account holders** — a per-player seed pair (`SeedPair`, `src/lib/seed-pair.ts`). The server commits its next seed at registration, the player activates it with a fresh client seed of their own (echoing the hash they were shown), every bet takes the next nonce, and rotating reveals the seed so all its bets can be checked. Open rounds are forfeited on rotation. `GET /api/user/seeds`, `POST /api/user/seeds/rotate`, Settings → Seed Pair panel, first-bet auto-activation, and seed details in `/history`. Previously every route generated its server seed in the same request as the bet, so no game was provably fair. Guest play still isn't (per-bet seeds revealed with the result)
 - **Real accounts and server-authoritative balance** — registration and login (next-auth v5, Credentials provider, bcrypt, JWT sessions); every one of the 13 games now settles through an atomic database transaction (`src/lib/game-balance.ts`) when logged in, with balance, bet history, and in-progress game state persisted in Postgres. Guest mode (no account) is unchanged — same `localStorage`-backed balance, same games, same math.
